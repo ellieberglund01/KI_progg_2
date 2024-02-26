@@ -1,7 +1,5 @@
 import numpy as np
 
-
-
 class Node:
     def __init__(self, state, parent=None, parent_action=None):
         self.state = state
@@ -28,7 +26,6 @@ class Node:
                 return current_node.expand()
             else:
                 current_node = current_node.best_child()
-
         return current_node 
     
     def expand(self): 
@@ -45,7 +42,16 @@ class Node:
         return self.children[np.argmax(child_values)] 
     
     def rollout(self, possible_moves):
-        return possible_moves[np.random.randint(len(possible_moves))] # her skal ANET inn (ny klasse)
+        current_rollout_state = self.state
+        
+        while not current_rollout_state.is_game_over():
+            possible_moves = current_rollout_state.get_legal_actions()
+            action = self.rollout_policy(possible_moves)
+            current_rollout_state = current_rollout_state.move(action)
+        return current_rollout_state.game_result() 
+    
+    def rollout_policy(self, possible_moves): # her skal ANET inn (ny klasse)
+        return possible_moves[np.random.randint(len(possible_moves))]
 
 
     def choose_action(self):
@@ -53,50 +59,22 @@ class Node:
         for i in range(simulation_no):
             leaf = self.search()
             game_result = leaf.rollout()
-            #v.backpropagate(game_result)
-        
+            leaf.backpropagate(game_result) 
         return self.best_child(c_param=0.)
+    
+    def backpropagate(self, result):
+        self._number_of_visits += 1.
+        self._results[result] += 1.
+        if self.parent:
+            self.parent.backpropagate(result)
+
+
             
+"""def choose_action_with_anet(self, state, possible_moves):
+    state_tensor = self.state_to_tensor(state)  # Convert state to tensor
+    action_probabilities = self.anet.predict(state_tensor)
+    adjusted_probabilities = adjust_probabilities(action_probabilities, possible_moves)
+    action = np.random.choice(len(adjusted_probabilities), p=adjusted_probabilities)
+    return action"""
 
 
-class MCTS(self, board, player):
-    def __init__(self, board, player):
-        self.board = board
-        self.player = player
-        self.opponent = 1 if player == 2 else 2
-        self.root = Node(board, player)
-    
-    
-    def selection(self, state, ):
-        u
-    def search(self):
-        pass
-    def expand(self):
-        pass
-    def rollout(self):
-        pass
-    def backpropagation(self):
-        pass
-
-
-
-
-
-
-
-    
-class Hex:
-    def __init__(self, initial_states, board_states, moves, final_states, winner):
-        self.initial_states = initial_states
-        self.board_states = board_states
-        self.moves = moves
-        self.final_states = final_states
-        self.winner = winner
-        self.board = Board(board_states, moves, final_states, winner)
-        self.mtcs = MTCS(self.board, 1)
-    
-
-
-class RL_system:
-    def __init__(self):
-        pass
