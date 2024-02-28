@@ -1,4 +1,5 @@
 import numpy as np
+from Nim import NimGame
 
 class Node:
     def __init__(self, state, parent=None, parent_action=None):
@@ -22,7 +23,7 @@ class Node:
     def search(self):
         current_node = self
         while not current_node.is_terminal_node():
-            if not current_node.is_fully_expanded():
+            if not current_node.if_fully_expanded():
                 return current_node.expand()
             else:
                 current_node = current_node.best_child()
@@ -30,6 +31,7 @@ class Node:
     
     def expand(self): 
         action = self.untried_actions.pop() #kaller på random action
+        print("random Action: ", action)
         next_state = self.state.move(action)
         child_node = Node(next_state, parent=self, parent_action=action)
         self.children.append(child_node)
@@ -58,13 +60,15 @@ class Node:
         simulation_no = 100 #definere i init
         for i in range(simulation_no):
             leaf = self.search()
-            game_result = leaf.rollout()
+            game_result = leaf.rollout(self.untried_actions)
             leaf.backpropagate(game_result) 
+        print("done")
         return self.best_child(c_param=0.)
+
     
     def backpropagate(self, result):
-        self._number_of_visits += 1.
-        self._results[result] += 1.
+        self.visits += 1.
+        self.results[result] += 1.
         if self.parent:
             self.parent.backpropagate(result)
 
