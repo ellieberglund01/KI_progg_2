@@ -17,21 +17,21 @@ class Node:
     def is_terminal_node(self): #sjekker game over
         return self.state.is_game_over()
      
-    def if_fully_expanded(self):
+    def is_fully_expanded(self):
         return len(self.untried_actions) == 0
     
     def search(self):
         current_node = self
         while not current_node.is_terminal_node():
-            if not current_node.if_fully_expanded():
+            if not current_node.is_fully_expanded():
                 return current_node.expand()
             else:
                 current_node = current_node.best_child()
-        return current_node 
+        return current_node
     
     def expand(self): 
         action = self.untried_actions.pop() #kaller på random action
-        print("random Action: ", action)
+        print("expand action: ", action)
         next_state = self.state.move(action)
         child_node = Node(next_state, parent=self, parent_action=action)
         self.children.append(child_node)
@@ -45,7 +45,6 @@ class Node:
     
     def rollout(self, possible_moves):
         current_rollout_state = self.state
-        
         while not current_rollout_state.is_game_over():
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
@@ -57,12 +56,13 @@ class Node:
 
 
     def choose_action(self):
-        simulation_no = 100 #definere i init
+        simulation_no = 10 #definere i init
         for i in range(simulation_no):
             leaf = self.search()
             game_result = leaf.rollout(self.untried_actions)
             leaf.backpropagate(game_result) 
         print("done")
+        print(self.best_child().parent_action)
         return self.best_child(c_param=0.)
 
     

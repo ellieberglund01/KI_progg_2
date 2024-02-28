@@ -20,6 +20,7 @@ class NimGame:
                 self.player_turn = 1
       
         else:
+            print("legal action is: ", self.get_legal_actions())
             raise ValueError("Illegal action.")
         return self
     
@@ -37,8 +38,10 @@ class NimGame:
         # Assuming player 1's turn is True and player 2's turn is False
         # If it's player 1's turn in a terminal state, player 2 has taken the last piece, and vice versa.
         if self.player_turn == 1:
+            print("player 1 won")
             return -1
         else:
+            print("player 2 won")
             return 1
 
     def display(self):
