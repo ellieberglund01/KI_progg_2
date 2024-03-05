@@ -12,8 +12,11 @@ class NimGame:
     def move(self, action):
         """Make a move (action), updating the state of the game."""
         print("Player:", self.player_turn)
-        if action in self.get_legal_actions():
-            self.current_pieces -= action
+
+        if action in self.get_legal_actions():  
+            self.current_pieces -= action #current_pieces resetes ikke etter en simulation!!!!!!
+            print("Current pieces on the board", self.current_pieces)
+
             if self.player_turn == 1:
                 self. player_turn = -1
             else:
