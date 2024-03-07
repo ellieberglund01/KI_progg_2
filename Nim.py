@@ -18,7 +18,7 @@ class NimGame:
             print("Current pieces on the board", self.current_pieces)
 
             if self.player_turn == 1:
-                self. player_turn = -1
+                self.player_turn = -1
             else:
                 self.player_turn = 1
       
@@ -26,6 +26,7 @@ class NimGame:
             print("legal action is: ", self.get_legal_actions())
             raise ValueError("Illegal action.")
         return self
+    
     
     def is_game_over(self):
         """Check if the game has reached a terminal state."""

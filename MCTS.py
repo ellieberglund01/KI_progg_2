@@ -2,7 +2,7 @@ import numpy as np
 import copy 
 
 
-class Node:
+class Node():
     def __init__(self, state, parent=None, parent_action=None):
         self.state = state
         self.parent = parent

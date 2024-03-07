@@ -1,37 +1,33 @@
 from Nim import NimGame
-from MCTS import Node
+from MCTScopy import Node
+from MCTScopy import MCTS
 
 
 def run_nim_game():
     game = NimGame(10, 3, 1)
-    mcts_player1 = Node(state=game)
-    mcts_player2 = Node(state=game)
+    start_node = Node(1,None,None)
+    mcts_game = MCTS(game,start_node,1)
 
+    
     while not game.is_game_over():
-        #Må på en måte initialisere gamet på nytt (siden vi spiller jo ferdig gamet når vi simulerer)
-
-        # Display the current game state before each player's turn
         print(f"\nCurrent game state: {game.current_pieces} pieces remaining")
-
-        print("Player 1's turn:")
-        mcts_player1.state = game  # Ensure the MCTS node's state is up to date
-        selected_node = mcts_player1.choose_action()
-        action = selected_node.parent_action
-        print(f"Player 1 takes {action} piece(s).")
+        selected_node = mcts_game.choose_action(start_node)
+        selected_action = selected_node.parent_action 
         print("------------------------------------------")
-        game.move(action)
+        print(f"Game Player {game.player_turn} takes action {selected_action}") #Denne oppdateres ikke riktig etter første simulering
+        #print(f"Node Player {selected_node.parent.player} takes action {selected_node.parent_action}")
+        game.move(selected_action)
+        
         game.display()
+
         if game.is_game_over():
             break
+        start_node = selected_node
+        mcts_game = MCTS(game, start_node,1)
+        #print(f"New Game Player {game.player_turn}")
+        #print(f"New Root node player:{start_node.player}")
 
-        print("Player 2's turn:")
-        mcts_player2.state = game  # Ensure the MCTS node's state is up to date
-
-        selected_node = mcts_player2.choose_action()
-        action = selected_node.parent_action
-        game.move(action)
-        print(f"Player 2 takes {action} piece(s).")
-        game.display()
+  
 
 if __name__ == "__main__":
     run_nim_game()
