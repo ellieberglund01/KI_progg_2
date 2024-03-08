@@ -17,14 +17,14 @@ class MCTS():
         """if root_node.parent != None:
             self.game.move(root_node.parent_action)"""
 
-        simulation_no = 3 #definere i init
+        simulation_no = 5 #definere i init
 
         for i in range(1,simulation_no-1):
             print("Current simulation:", {i})
+            print("--------")
             node = root_node
             game_copy = copy.deepcopy(self.game)
             leaf1, game_copy = self.tree_policy(node, game_copy)
-            print(leaf1.visits)
             """
             if leaf1.visits == 0:
                 print("leaf1 has 0 visits")
@@ -39,15 +39,12 @@ class MCTS():
             self.backpropagate(leaf2, game_result,self.exploration_rate, i) 
 
         #choosing the actual action 
+        #self.expand(root_node,self.game) 
         child_values = []
         for child in root_node.children:
             if child.visits != 0:
                 child_values.append(child.winning_count/child.visits)
-            print("child visits", child.visits)
-        print("child values:", child_values)
         best_child = root_node.children[np.argmax(child_values)]
-        print("best action",best_child.parent_action)
-        
         return best_child
 
 
@@ -83,14 +80,11 @@ class MCTS():
             if current_node.player == 1:
                 current_ubc = float('-inf')
                 best_node = None
-                
-
                 for i in range (len(current_node.children)):
                     if current_node.children[i].ubc > current_ubc:
                         best_node = current_node.children[i]
                         current_ubc =best_node.ubc
                 current_node = best_node
-
             else:
                 current_ubc = float('inf')
                 best_node = None
@@ -103,9 +97,9 @@ class MCTS():
             if current_node == None:
                 raise Exception("No node found")
             actions.append(current_node.parent_action)
-
         for action in actions:
             game.move(action)
+            print("Simulation action from initial node:", action)
         return current_node, game
 
 
@@ -117,11 +111,13 @@ class MCTS():
             return child
     
     def expand(self,initial_node, game): #Expander alle action fra node og utvider treet 
+        print("expansion starts from node:", initial_node)
         actions = game.get_legal_actions()
         for action in actions:
             child = self.create_child(initial_node, action)
             if child not in initial_node.children: 
                 initial_node.children.append(child)
+        print("children of expanded node:", initial_node.children)
         return initial_node
     
     def simluation_results(self, node):
@@ -178,8 +174,5 @@ class Node():
             if self.player == 1: 
                 self.ubc = w_i/s_i + c* sqrt(np.log(s_p)/s_i)
             else:
-                print(s_p)
-                print("s_i", s_i)
                 self.ubc = w_i/s_i - c* sqrt(np.log(s_p)/s_i)
-
         return self.ubc

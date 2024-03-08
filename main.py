@@ -1,6 +1,6 @@
 from Nim import NimGame
-from MCTScopy import Node
-from MCTScopy import MCTS
+from MCTS_new import Node
+from MCTS_new import MCTS
 
 
 def run_nim_game():
@@ -10,12 +10,11 @@ def run_nim_game():
 
     
     while not game.is_game_over():
-        print(f"\nCurrent game state: {game.current_pieces} pieces remaining")
         selected_node = mcts_game.choose_action(start_node)
         selected_action = selected_node.parent_action 
-        print("------------------------------------------")
-        print(f"Game Player {game.player_turn} takes action {selected_action}") #Denne oppdateres ikke riktig etter første simulering
-        #print(f"Node Player {selected_node.parent.player} takes action {selected_node.parent_action}")
+        print("-----------------------------")
+        print("Player", game.player_turn, "takes", {selected_action}, "pieces from the board")
+        print("-----------------------------")
         game.move(selected_action)
         
         game.display()
