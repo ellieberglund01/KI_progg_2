@@ -17,12 +17,13 @@ class Grid():
         if self.is_valid_move(row, col):
             self.board[row][col] = (1, 0) if self.current_player == 1 else (0, 1)
             print("move made by:", {self.current_player})
-            self.current_player = 3 - self.current_player  # Switch player
             if self.check_winning_condition(self.current_player):
                 print("Player won:", self.current_player)
-
+            self.current_player = 3 - self.current_player  # Switch player
             self.print_board() 
-        
+        else:
+            print("Not a valid move")
+
             
     def print_board(self):
         for row in self.board:
@@ -32,31 +33,33 @@ class Grid():
     def check_winning_condition(self, player_id):
         if player_id == 1:
             # Check entire first column for player 1's pieces
-            #Noe feil her 
-            for col in range(self.board_size):
-                if self.board[0][col] == player_id and self.dfs(player_id, 0, col, set()):
+            for row in range(self.board_size):
+                if self.board[row][0] == (1,0) and self.dfs((1,0), row, 0, set()):
                     return True
+                
                 
         elif player_id == 2:
             # Check entire first row for player 2's pieces
-            for row in range(self.board_size):
-                if self.board[row][0] == player_id and self.dfs(player_id, row, 0, set()):
+            for col in range(self.board_size):
+                if self.board[0][col] == (0,1) and self.dfs((0,1), 0, row, set()):
                     return True
+                
         return False
 
-    def dfs(self, player_id, row, col, side, visited):
-        if player_id == 1 and col == self.board_size - 1:
+    def dfs(self, player_piece, row, col, visited):
+        if player_piece == (1,0) and col == self.board_size - 1:
             return True
-        if player_id == 2 and row == self.board_size - 1:
+        if player_piece == (0,1) and row == self.board_size - 1:
             return True
 
-        neighbors = [(0, 1), (-1, 1)] if player_id == 1 else [(1, 0), (1, -1)]
+        #funker ikke for (0,x) (x,board_size-1), (board_size-1,x) og (x,0)
+        neighbors = [(0, 1), (-1, 1)] if player_piece == (1,0) else [(1, 0), (1, -1)]
 
         for neighbor in neighbors:
             nr, nc = row + neighbor[0], col + neighbor[1]
-            if 0 <= nr < self.board_size and 0 <= nc < self.board_size and (nr, nc) not in visited and self.board[nr][nc] == player_id:
+            if 0 <= nr < self.board_size and 0 <= nc < self.board_size and (nr, nc) not in visited and self.board[nr][nc] == player_piece:
                 visited.add((nr, nc))
-                if self.dfs(player_id, nr, nc, visited):
+                if self.dfs(player_piece, nr, nc, visited):
                     return True
         return False
     
@@ -77,7 +80,6 @@ game.move(1,2)
 game.move(3,3)
 game.move(2,0)
 game.move(4,4)
-print(game.check_winning_condition(1))
 
 
 
