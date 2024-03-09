@@ -19,6 +19,8 @@ class Grid():
             print("move made by:", {self.current_player})
             if self.check_winning_condition(self.current_player):
                 print("Player won:", self.current_player)
+            else:
+                print("still playing")
             self.current_player = 3 - self.current_player  # Switch player
             self.print_board() 
         else:
@@ -41,7 +43,7 @@ class Grid():
         elif player_id == 2:
             # Check entire first row for player 2's pieces
             for col in range(self.board_size):
-                if self.board[0][col] == (0,1) and self.dfs((0,1), 0, row, set()):
+                if self.board[0][col] == (0,1) and self.dfs((0,1), 0, col, set()):
                     return True
                 
         return False
@@ -52,8 +54,20 @@ class Grid():
         if player_piece == (0,1) and row == self.board_size - 1:
             return True
 
+        if player_piece == (1,0):
+            if row == 0:
+                neighbors = [(0,1)]
+            else: 
+                neighbors = [(0, 1), (-1, 1)]
+
+        if player_piece == (0,1):
+            if col == 0:
+                neighbors = [(1,0)]
+            else:
+                neighbors = [(1, 0), (1, -1)]
+            
         #funker ikke for (0,x) (x,board_size-1), (board_size-1,x) og (x,0)
-        neighbors = [(0, 1), (-1, 1)] if player_piece == (1,0) else [(1, 0), (1, -1)]
+        #neighbors = [(0, 1), (-1, 1)] if player_piece == (1,0) else [(1, 0), (1, -1)]
 
         for neighbor in neighbors:
             nr, nc = row + neighbor[0], col + neighbor[1]
@@ -65,22 +79,33 @@ class Grid():
     
 
 
-# Example usage:
+
+
 game = Grid(5)  # Create a Hex game with a 5x5 board
-# Sequence of moves to make Player 1 win
-moves = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
 
-
-game.move(0,0) 
+#example player 1 wins 
+"""game.move(0,0) 
 game.move(2,3)  
-game.move(1,1) 
+game.move(0,1) 
 game.move(3,4)
-game.move(2,2)
+game.move(0,2)
 game.move(1,2)
-game.move(3,3)
+game.move(0,3)
 game.move(2,0)
-game.move(4,4)
+game.move(0,4)"""
 
+
+#example player 2 wins 
+game.move(0,0) 
+game.move(0,3)  
+game.move(0,1) 
+game.move(1,3)
+game.move(1,1)
+game.move(2,3)
+game.move(0,2)
+game.move(3,3)
+game.move(0,4)
+game.move(4,3)
 
 
 
