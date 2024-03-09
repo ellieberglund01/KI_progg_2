@@ -6,24 +6,19 @@ class NimGame:
         self.player_turn = player_turn #1 if player 1, -1 for player 2
     
     def get_legal_actions(self):
-        """Return a list of the legal actions based on the current state."""
         return list(range(1, min(self.K, self.current_pieces) + 1))
     
     def move(self, action):
         """Make a move (action), updating the state of the game."""
-        print("Player:", self.player_turn)
-
         if action in self.get_legal_actions():  
             self.current_pieces -= action
             print("Current pieces on the board", self.current_pieces)
-
             if self.player_turn == 1:
                 self.player_turn = -1
             else:
                 self.player_turn = 1
       
         else:
-            print("legal action is: ", self.get_legal_actions())
             raise ValueError("Illegal action.")
         return self
     
