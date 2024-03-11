@@ -6,7 +6,7 @@ from MCTS_new import MCTS
 def run_nim_game():
     game = NimGame(10, 3, 1)
     start_node = Node(1,None,None)
-    mcts_game = MCTS(game,start_node,1)
+    mcts_game = MCTS(game,start_node,0.01)
 
     
     while not game.is_game_over():

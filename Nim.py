@@ -11,12 +11,8 @@ class NimGame:
     
     def move(self, action):
         """Make a move (action), updating the state of the game."""
-        print("Player:", self.player_turn)
-
         if action in self.get_legal_actions():  
             self.current_pieces -= action
-            print("Current pieces on the board", self.current_pieces)
-
             if self.player_turn == 1:
                 self.player_turn = -1
             else:
@@ -42,10 +38,10 @@ class NimGame:
         # Assuming player 1's turn is True and player 2's turn is False
         # If it's player 1's turn in a terminal state, player 2 has taken the last piece, and vice versa.
         if self.player_turn == 1:
-            print("player 1 won")
+            print("player -1 won")
             return -1
         else:
-            print("player 2 won")
+            print("player 1 won")
             return 1
 
     def display(self):
