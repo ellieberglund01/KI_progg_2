@@ -183,7 +183,7 @@ class Node():
     def is_terminal_node(self): 
         return self.state.is_game_over()
 
-    def update(self, result, player, exploration_rate, sim): #Må se på denne. Kankje bestå bare spilel fra ett perspektiv
+    def update(self, result, player, exploration_rate, sim): #Brukes ikke nå
         if result == player:
             if self.player == player:
                 self.winning_count += 1
