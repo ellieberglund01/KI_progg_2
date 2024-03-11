@@ -13,6 +13,31 @@ class Grid():
     def is_valid_move(self, row, col):
         return 0 <= row < self.board_size and 0 <= col < self.board_size and self.board[row][col] == (0,0)
     
+    def legal_actions(self):
+        legal_actions_list = []
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                if self.is_valid_move(row, col):
+                    legal_actions_list.append((row, col))
+        return legal_actions_list
+
+
+    """def move(self, action):
+        if action in self.legal_actions():
+            row = action[0]
+            col = action[1]
+            self.board[row][col] = (1, 0) if self.current_player == 1 else (0, 1)
+            print("move made by:", {self.current_player})
+            if self.check_winning_condition(self.current_player):
+                print("Player won:", self.current_player)
+            else:
+                print("still playing")
+            self.current_player = 3 - self.current_player  # Switch player
+            self.print_board() 
+        else:
+            print("Not a valid move")"""
+
+
     def move(self, row, col):
         if self.is_valid_move(row, col):
             self.board[row][col] = (1, 0) if self.current_player == 1 else (0, 1)
@@ -38,14 +63,12 @@ class Grid():
             for row in range(self.board_size):
                 if self.board[row][0] == (1,0) and self.dfs((1,0), row, 0, set()):
                     return True
-                
-                
+
         elif player_id == 2:
             # Check entire first row for player 2's pieces
             for col in range(self.board_size):
                 if self.board[0][col] == (0,1) and self.dfs((0,1), 0, col, set()):
-                    return True
-                
+                    return True       
         return False
 
     def dfs(self, player_piece, row, col, visited):
@@ -53,22 +76,44 @@ class Grid():
             return True
         if player_piece == (0,1) and row == self.board_size - 1:
             return True
-
-        if player_piece == (1,0):
+        
+        #Hjørner 
+        if row == 0 and col == 0:
+            neighbors = [(0,1), (1,0)]
+        elif row == self.board_size -1 and col == 0:
+            neighbors = [(-1,0), (0,1), (-1,1)]
+        elif row == 0 and col == self.board_size -1:
+            neighbor = [(-1,0),(1,0), (1,-1)]
+        elif row == self.board_size -1 and col == self.board_size -1:
+            neighbors = [(-1,0), (0,-1)]
+        
+        #edges
+        elif row == 0:
+            neighbors = [(0,-1), (1,0), (0,1), (1,-1)]
+        elif col == 0:
+            neighbors = [(0,1), (-1,0), (1,0), (-1,1)]
+        elif row == self.board_size -1:
+            neighbors = [(-1,0), (0,-1),(0,1), (-1,1)]
+        elif col == self.board_size -1:
+            neighbors = [(1,0), (-1,0), (0,-1), (1,-1)]
+        
+        #the rest 
+        else:
+            neighbors = [(1,0), (-1,0),(0,1),(0,-1), (1,-1), (-1,1)]
+        
+        """if player_piece == (1,0):
             if row == 0:
                 neighbors = [(0,1)]
             else: 
                 neighbors = [(0, 1), (-1, 1)]
-
         if player_piece == (0,1):
             if col == 0:
                 neighbors = [(1,0)]
             else:
-                neighbors = [(1, 0), (1, -1)]
-            
-        #funker ikke for (0,x) (x,board_size-1), (board_size-1,x) og (x,0)
+                neighbors = [(1, 0), (1, -1)]"""
+           
+        #funker ikke for (0,x) (x,board_size-1), (board_size-1,x) og (x,0):
         #neighbors = [(0, 1), (-1, 1)] if player_piece == (1,0) else [(1, 0), (1, -1)]
-
         for neighbor in neighbors:
             nr, nc = row + neighbor[0], col + neighbor[1]
             if 0 <= nr < self.board_size and 0 <= nc < self.board_size and (nr, nc) not in visited and self.board[nr][nc] == player_piece:
@@ -77,8 +122,6 @@ class Grid():
                     return True
         return False
     
-
-
 
 
 game = Grid(5)  # Create a Hex game with a 5x5 board
@@ -94,7 +137,6 @@ game.move(0,3)
 game.move(2,0)
 game.move(0,4)"""
 
-
 #example player 2 wins 
 game.move(0,0) 
 game.move(0,3)  
@@ -106,6 +148,25 @@ game.move(0,2)
 game.move(3,3)
 game.move(0,4)
 game.move(4,3)
+
+
+#Another example where player 1 wins 
+"""game.move(0,0)
+game.move(0,0)
+game.move(1,0)
+game.move(5,5)
+game.move(0,1)
+game.move(0,3)
+game.move(1,1)
+game.move(4,0)
+game.move(1,2)
+game.move(3,4)
+game.move(2,2)
+game.move(1,4)
+game.move(2,3)
+game.move(0,2)
+game.move(2,4)"""
+
 
 
 
