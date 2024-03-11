@@ -1,10 +1,12 @@
 from Nim import NimGame
 from MCTS_new import Node
 from MCTS_new import MCTS
+from Hex import HexGame
 
 
 def run_nim_game():
-    game = NimGame(10, 3, 1)
+    #game = NimGame(10, 3, 1)
+    game = HexGame(4)
     start_node = Node(1,None,None)
     mcts_game = MCTS(game,start_node,0.01)
 
