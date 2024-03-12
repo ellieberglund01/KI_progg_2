@@ -39,7 +39,7 @@ class MCTS():
             self.expand(leaf1, game_copy) #Adds children to leaf node
             expanded_leaf, game_copy = self.tree_policy(leaf1, game_copy, i) #Chooses beste action/leaf node from leaf1
             game_result = self.rollout(game_copy)  #Simulates game from expanded leaf
-            path = self.backpropagate(expanded_leaf, root_node, game_result) #Backpropagates and returns the path from leaf to root
+            path = self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
             for node in path:
                 print("Path parent action:", node.parent_action, "Path visit count:", node.visits, "Path node value:", node.winning_count)
 
@@ -77,18 +77,20 @@ class MCTS():
             node.visits += 1
             node = node.parent
 
-    def backpropagate(self, node, root, result):
+    def backpropagate(self, node, result): #We only update winning_count and visits, not ubc.
         path = []
         self.update_visit_count(node)
-        while node!= None: #Ender opp med å oppdatere visits + winning count for tidligere parent (er det dumt?)
+        while node!= None: 
             if result == 1:
                 node.winning_count += 1
+            '''
             else:
-                node.winning_count -= 1 #Får mye w=0, som er dumt?
+                node.winning_count -= 1 #Får mye w=0, som er dumt? #Incldue this?
+            '''
             path.append(node)
             node = node.parent
         return path
-
+    '''
     def backpropagate2(self,node,root,result): #denne oppdaterer q-funksjon. Da må vi endre treepolicy og calcUBC
         path = []
         self.update_visit_count(node)
@@ -102,7 +104,7 @@ class MCTS():
             path.append(node)
             node = node.parent
         return path
-
+     '''
     #Iterer gjennom treet basert på ubc scoren og finner actions som leder til leaf node i spillet 
             #burde kalkulere ubc på vei ned (ikke på vei opp)
     def tree_policy(self, node, game, sim):
@@ -174,7 +176,7 @@ class Node():
         self.children=[]
         self.winning_count = 0 #blir feil å kalle det winning count, fordi blir både +1 og -1 (er mer node_value)
         self.visits = 0
-        self.qvalues = {}
+        #self.qvalues = {}
 
         if self.player == -1:
             self.ubc = float('inf')
@@ -184,19 +186,14 @@ class Node():
     def is_terminal_node(self): 
         return self.state.is_game_over()
 
+    '''
     def update(self, result, player, exploration_rate, sim): #Brukes ikke nå
         if result == player:
             if self.player == player:
                 self.winning_count += 1
-        '''
-        if result == 1: #player 1 wins. + 1
-            self.winning_count += 1
-        else: #player -1 wins. +0
-            self.winning_count -= 1
-        #self.ubc = self.calcUBC(exploration_rate, sim)
-        #If root.player = rollout.result + 1. In entire path
-        '''
-    def calcUBC(self,exploration_rate, sim): #Simulations er en del av utregning av ubc 
+    '''
+    
+    def calcUBC(self,exploration_rate, sim): #Simulations er en del av utregning av ubc. DOUBLE CHECK
         w_i = self.winning_count #this nodes number of simluations that resultet in win 
         s_i = self.visits #this nodes total number of visists/simulations 
         c = exploration_rate
