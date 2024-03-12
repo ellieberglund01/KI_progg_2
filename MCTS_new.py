@@ -4,7 +4,7 @@ from math import sqrt, log,inf
 import numpy as np
 
 #PROBLEM 1: Når vi oppdaterer +1 for player 1 og -1 for player 2 wins, så får vi mange noder med 0 verdi -> Implementere q-funksjon?
-#PROBLEM 2: Vi fortsetter backpropagation oppover i gammelt tre (ikke nldvendigvis noe problem)
+#PROBLEM 2: Vi fortsetter backpropagation oppover i gammelt tre (ikke nldvendigvis noe problem) -> FIXED
 #PROBLEM 3: Ved høye simuleringer så vil leaf policy gå ned til terminal state (ikke nødvendigvis et problem for hex)
 
 
@@ -14,6 +14,7 @@ class MCTS():
         self.game = game_state
         self.root_node = root_node
         self.exploration_rate = exploration_rate 
+        self.root_node.parent = None #pruner treet når en action blit tatt 
 
     def choose_action(self, root_node): #Policy, simulations, anet som input her også 
         """if root_node.parent != None:
@@ -83,7 +84,7 @@ class MCTS():
             if result == 1:
                 node.winning_count += 1
             else:
-                node.winning_count -= 1 #Får mye w=0, som er dumt
+                node.winning_count -= 1 #Får mye w=0, som er dumt?
             path.append(node)
             node = node.parent
         return path
