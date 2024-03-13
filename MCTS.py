@@ -1,8 +1,10 @@
 import numpy as np
 import copy 
 
+#tror vi burde dele opp i NOde and Search
+#Også blir search funkjsjonen endret til "select" og vil da ta inn rotnoden, som er Node
 
-class Node():
+class Node: #Burde ha en for node og en for tree
     def __init__(self, state, parent=None, parent_action=None):
         self.state = state
         self.parent = parent
@@ -74,11 +76,16 @@ class Node():
         print("done")
         print(self.best_child().parent_action)
         return self.best_child(c_param=0.)
+        #trenger en funksjon som oppdaterer rotnoden s0 <- s'
+        # We discard the rest of the tree (all child of other than the chosen action) and incrementally build from s' 
+
 
     
-    def backpropagate(self, result):
+    def backpropagate(self, result): #burde vi heller ta inn (state, action)?
         self.visits += 1.
         self.results[result] += 1.
+        # SKal vi ha med en Q funksjon?
+        # Må vi ikke oppdatere state (gjort) og action?
         if self.parent:
             self.parent.backpropagate(result)
 

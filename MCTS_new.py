@@ -32,10 +32,22 @@ class MCTS():
         #print("Possible actions and their values:")
         #print("current player:", root_node.player)
         best_child = max(root_node.children,key=lambda child:-child.get_value())
+        normalized_distribution = self.get_distribution(root_node) #denne burde kalles på i main. skal egt brukes i valg
+        #get distribution
         #print(child_values)
         #print("For player:", root_node.player, "best action is:", best_child.parent_action)
-        return best_child
+        return best_child, normalized_distribution
     
+    def get_distribution(self, root_node):
+        distribution = []
+        for child in root_node.children:
+            distribution.append(-child.get_value())
+        normalized_distribution = [float(i)/sum(distribution) for i in distribution]
+        return normalized_distribution
+
+
+
+
 
     def rollout(self, game): #Sende inn policy/ANET også
         current_rollout_state = game
