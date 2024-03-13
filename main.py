@@ -4,9 +4,9 @@ from MCTS_new import MCTS
 from Hex import HexGame
 
 
-def run_nim_game():
-    #game = NimGame(10, 3, 1)
-    game = HexGame(4)
+def run_game():
+    #game = NimGame(4, 3, 1)
+    game = HexGame(3)
     start_node = Node(1,None,None)
     mcts_game = MCTS(game,start_node,0.01)
 
@@ -15,7 +15,7 @@ def run_nim_game():
         selected_node = mcts_game.choose_action(start_node)
         selected_action = selected_node.parent_action 
         print("-----------------------------")
-        print("Player", game.player_turn, "takes", {selected_action}, "pieces from the board")
+        print("Player", game.player_turn, "places a piece on", {selected_action})
         print("-----------------------------")
         game.move(selected_action)
         
@@ -25,10 +25,8 @@ def run_nim_game():
             break
         start_node = selected_node
         mcts_game = MCTS(game, start_node,1)
-        #print(f"New Game Player {game.player_turn}")
-        #print(f"New Root node player:{start_node.player}")
 
-  
+    print("GAME OVERRRRRER")
 
 if __name__ == "__main__":
-    run_nim_game()
+    run_game()

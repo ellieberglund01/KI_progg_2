@@ -1,4 +1,8 @@
 
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+
 
 class HexGame():
     def __init__(self,board_size):
@@ -28,30 +32,33 @@ class HexGame():
             self.board[row][col] = (1, 0) if self.player_turn == 1 else (0, 1)
             print("move made by:", {self.player_turn})
             if self.is_game_over():
-                print("Player won:", self.player_turn)
+                print("Player won:", self.player_turn) #Terminate game
             else:
                 print("still playing")
-            self.player_turn = 3 - self.player_turn  # Switch player
+                self.player_turn = 3 - self.player_turn  # Switch player
+            
             self.display() 
         else:
             print("Not a valid move")
         return self
+
 
     def game_result(self):
         if not self.is_game_over():
             raise ValueError("Game is not yet finished.")
         if self.player_turn == 1:
             print("player 1 won")
-            return -1
+            return 1 
         else:
             print("player 2 won")
-            return 1
+            return -1
                  
     def display(self):
         for row in self.board:
             print(" ".join(str(cell) for cell in row))
         print()
 
+    
     def check_winning_condition(self, player_id):
         if player_id == 1:
             # Check entire first column for player 1's pieces
@@ -82,7 +89,7 @@ class HexGame():
         elif row == self.board_size -1 and col == 0:
             neighbors = [(-1,0), (0,1), (-1,1)]
         elif row == 0 and col == self.board_size -1:
-            neighbor = [(-1,0),(1,0), (1,-1)]
+            neighbors = [(-1,0),(1,0), (1,-1)]
         elif row == self.board_size -1 and col == self.board_size -1:
             neighbors = [(-1,0), (0,-1)]
         
@@ -99,9 +106,7 @@ class HexGame():
         #the rest 
         else:
             neighbors = [(1,0), (-1,0),(0,1),(0,-1), (1,-1), (-1,1)]
-   
-        #funker ikke for (0,x) (x,board_size-1), (board_size-1,x) og (x,0):
-        #neighbors = [(0, 1), (-1, 1)] if player_piece == (1,0) else [(1, 0), (1, -1)]
+
         for neighbor in neighbors:
             nr, nc = row + neighbor[0], col + neighbor[1]
             if 0 <= nr < self.board_size and 0 <= nc < self.board_size and (nr, nc) not in visited and self.board[nr][nc] == player_piece:
@@ -111,7 +116,20 @@ class HexGame():
         return False
     
 
-game = HexGame(5)  # Create a Hex game with a 5x5 board
+game = HexGame(4)  # Create a Hex game with a 5x5 board
+
+board_size = 4
+diamond_hex_board = HexGame(board_size)
+diamond_hex_board.board = [
+    [(0, 0), (0,0), (0,0), (0,0)],
+    [(0, 0), (0,0), (0,0), (0,0)],
+    [(0, 0), (0,0), (0,0), (0,0)],
+    [(0, 0), (0,0), (0,0), (0,0)]
+]
+
+
+
+
 
 #example player 1 wins 
 """game.move((0,0))
@@ -138,7 +156,7 @@ game.move((4,3))"""
 
 
 #Another example where player 1 wins 
-game.move((0,0))
+"""game.move((0,0))
 game.move((0,0))
 game.move((1,0))
 game.move((5,5))
@@ -152,4 +170,4 @@ game.move((2,2))
 game.move((1,4))
 game.move((2,3))
 game.move((0,2))
-game.move((2,4))
+game.move((2,4))"""
