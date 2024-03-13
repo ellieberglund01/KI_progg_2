@@ -87,6 +87,7 @@ class DisplayGame():
             edge_color = 'black'
 
         # Coloring edges connecting winning nodes
+        #Error: Alle edges mellom alle noder til winner player blir farget, ikke bare winning path 
         for edge in self.graph.edges():
             if edge[0] in winning_nodes and edge[1] in winning_nodes:
                 nx.draw_networkx_edges(self.graph, pos=positions, edgelist=[edge], edge_color=edge_color)
