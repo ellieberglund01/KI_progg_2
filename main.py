@@ -2,6 +2,7 @@ from Nim import NimGame
 from MCTS_new import Node
 from MCTS_new import MCTS
 from Hex import HexGame
+from Display import DisplayGame
 
 
 def run_game():
@@ -9,7 +10,7 @@ def run_game():
     game = HexGame(3)
     start_node = Node(1,None,None)
     mcts_game = MCTS(game,start_node,0.01)
-
+    display = DisplayGame(game)
     
     while not game.is_game_over():
         selected_node = mcts_game.choose_action(start_node)
@@ -19,13 +20,15 @@ def run_game():
         print("-----------------------------")
         game.move(selected_action)
         
-        game.display()
+        display.draw_board(None,"player 1", "player 2")
+        #game.display()
 
         if game.is_game_over():
             break
         start_node = selected_node
         mcts_game = MCTS(game, start_node,1)
-
+    
+    display.draw_board(game.player_turn,"player 1", "player 2")
     print("GAME OVERRRRRER")
 
 if __name__ == "__main__":

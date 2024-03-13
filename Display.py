@@ -66,31 +66,32 @@ class DisplayGame():
         # Drawing in the nodes that have not been taken
         nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=empty_nodes, node_color='white')
         nx.draw_networkx_edges(self.graph, pos=positions, alpha=0.5, width=1, edge_color='black')
+    
 
         if winner == 1:
+            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled1, node_color='red', label=player1)
+            nx.draw_networkx_nodes(self.graph, pos=positions, alpha=0.5, nodelist=filled2, node_color='grey', label=player2)
             winning_nodes = self.get_filled_nodes()[0]  # Player 1's filled nodes
             edge_color = 'red'
-            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled1, node_color='red', label=player1)
+       
+        elif winner == 2:
+            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled1, node_color='grey', label=player1)
             nx.draw_networkx_nodes(self.graph, pos=positions, alpha=0.5, nodelist=filled2, node_color='blue', label=player2)
- 
-        elif winner == -1:
             winning_nodes = self.get_filled_nodes()[1]  # Player 2's filled nodes
             edge_color = 'blue'
-            nx.draw_networkx_nodes(self.graph, pos=positions, alpha=0.5, nodelist=filled1, node_color='red', label=player1)
-            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled2, node_color='blue', label=player2)
-
+        
         else:
-            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled1, node_color='blue', label=player1)
-            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled2, node_color='red', label=player2)
+            nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=filled1, node_color='red', label=player1)
+            nx.draw_networkx_nodes(self.graph, pos=positions, alpha=0.5, nodelist=filled2, node_color='blue', label=player2)
             winning_nodes = []
             edge_color = 'black'
-            
+
         # Coloring edges connecting winning nodes
         for edge in self.graph.edges():
             if edge[0] in winning_nodes and edge[1] in winning_nodes:
                 nx.draw_networkx_edges(self.graph, pos=positions, edgelist=[edge], edge_color=edge_color)
         
-        #nx.draw_networkx_nodes(self.graph, pos=positions, nodelist=winning_nodes, node_color=edge_color, label=player1 if winner == 1 else player2)
+
         plt.legend(prop={'size': 12})
         plt.draw()
         plt.pause(self.frame_delay)
@@ -106,5 +107,5 @@ diamond_hex_board.board = [
     [(0, 0), (0,0), (0,1), (0,0)]
 ]
 
-display = DisplayGame(diamond_hex_board)
-display.draw_board( -1,"player 1", "player 2")
+#display = DisplayGame(diamond_hex_board)
+#display.draw_board( -1,"player 1", "player 2")
