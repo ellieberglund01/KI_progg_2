@@ -5,11 +5,12 @@ import numpy as np
 import random
 
 class MCTS():
-    def __init__(self, game_state, root_node, exploration_rate):
+    def __init__(self, game_state, root_node, exploration_rate, epsilon): #initialize anet
         self.game = game_state
         self.root_node = root_node
         self.exploration_rate = exploration_rate 
         self.root_node.parent = None #pruner treet når en action blit tatt 
+        self.epsilon = epsilon
 
     def choose_action(self, root_node): #Policy, simulations, anet som input her også 
         print("Root node is now:", id(root_node))
@@ -46,9 +47,6 @@ class MCTS():
         return normalized_distribution
 
 
-
-
-
     def rollout(self, game): #Sende inn policy/ANET også
         current_rollout_state = game
         while not current_rollout_state.is_game_over():
@@ -59,8 +57,11 @@ class MCTS():
         return current_rollout_state.game_result() 
     
     def rollout_policy(self, possible_moves): # her skal ANET inn (ny klasse)
-        random_choice = random.choice(possible_moves)
-        return random_choice 
+        if self.epsilon > np.random.rand():
+            return random.choice(possible_moves)
+        else:
+            return random.choice(possible_moves)
+            #return ANET action instead here!!! This is argmax from probability distribution tha tit returns
     
     def update_visit_count(self, node):
         while node != None:

@@ -49,7 +49,7 @@ class ReinforcementLearner():
         self.RBUF = []
         
         #Step 3
-        ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS) #initialize ANET. Define hex?
+        ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE) #initialize ANET. Define hex?
 
         if path_to_weights != None:
             ANET.load_model(path_to_weights) #anet function
@@ -62,50 +62,47 @@ class ReinforcementLearner():
             #(a)(b)
             hex = HexGame(n=SIZE) 
             display = DisplayGame(hex)
-            #display.draw_board(hex.winning_player, "Player 1", "Player 2")
-            start_node = Node(1,None,None) #Player 1 starts 
-            
-            #(c)
+            start_node = Node(1,None,None) #Player 1 starts
             mcts = MCTS(hex, start_node, EXPLORATION_RATE)
+            
             print("Run MCTS to game over")
             print("-------------------------")
             
-
             #(d)
             while not hex.is_game_over():
-                root = start_node
-                index =+ 1
+                index += 1
                 selected_node, D= mcts.choose_action(start_node)
+                selected_action = selected_node.parent_action 
+
                 board_state = hex.get_flat_representation()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) 
                 game_case = (board_state_inc_player, D)
                 
+
+                '''
                 if len(self.RBUF) < TOTAL_BATCH:
                     self.RBUF.append(game_case) #Need to set a limit on number of batches 
                 else:
                     overwritten_index = index % TOTAL_BATCH #If we have reaced limit in batches the buffer is overwritten with new data cases 
-                    self.RBUF[overwritten_index] = game_case
+                    self.RBUF[overwritten_index] = game_case 
+                '''
                 
-                chosen_action = np.argmax(D) #Here we choose the action based on the highest distribution, check again 
-                hex.move(chosen_action)
-                display.draw_board(hex.winning_player, "Player 1", "Player 2")
-
+                hex.move(selected_action)
+                display.draw_board(None,"player 1", "player 2")
+                hex.display()
+                start_node = selected_node
+                mcts = MCTS(hex, start_node,1)
+    
+                
                 #Do we need this:?
                 """D_copy = copy.deepcopy(D)
                 while not hex.valid_move(actual_move):
                     D_copy[actual_move] = 0
                     actual_move = np.argmax(D_copy)"""
-                
-                for i in range(len(root.children)):
-                    if root.children[i].parent_action == chosen_action:
-                        new_root = root.children[i]
-                        break
-                
-                assert new_root != root, "Not able to creat a new root" #check to ensure that new_root is different from current root
-                root = new_root 
+            
             
             #Game finished
-            display.draw_board(hex.winning_player, "Player 1", "Player 2")
+            display.draw_board(hex.player_turn, "Player 1", "Player 2")
             print(f"DONE with MCTs for game: {ep}")
 
             #(e)
