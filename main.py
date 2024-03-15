@@ -9,11 +9,11 @@ def run_game():
     #game = NimGame(4, 3, 1)
     game = HexGame(3)
     start_node = Node(1,None,None)
-    mcts_game = MCTS(game,start_node,0.01)
+    mcts_game = MCTS(game,start_node,1)
     display = DisplayGame(game)
     
     while not game.is_game_over():
-        selected_node = mcts_game.choose_action(start_node)
+        selected_node, D = mcts_game.choose_action(start_node)
         selected_action = selected_node.parent_action 
         print("-----------------------------")
         print("Player", game.player_turn, "places a piece on", {selected_action})
@@ -21,7 +21,7 @@ def run_game():
         game.move(selected_action)
         
         display.draw_board(None,"player 1", "player 2")
-        #game.display()
+        game.display()
 
         if game.is_game_over():
             break

@@ -7,12 +7,21 @@ from Anet import NeuralNetwork
 from MCTS_new import MCTS, Node
 from Hex import HexGame 
 from Display import DisplayGame
+from keras.optimizers import Adam
+from keras.activations import relu
 
 TRAINING_BATCH = 10
 SIZE = 3
 TOTAL_EPISODES = 10
 TOTAL_BATCH = 10
 INTERVAL = 10
+HIDDEN_LAYERS = [128, 128, 128]
+NUMBER_OF_BATCHES = 3000
+ACTIVATION_FUNCTION = relu
+OPTIMIZER = Adam
+LEARNING_RATE = 0.001
+EPOCHS = 3
+EXPLORATION_RATE = 0.01
 
 
 class ReinforcementLearner():
@@ -22,14 +31,17 @@ class ReinforcementLearner():
         self.episode_files = []
         self.RBUF = []
 
-    #Do we need this function?
+    #Do we need this?
+    '''
     def save_episodes_to_file(self, anet, save_interval):
         for ep in range (0,  TOTAL_EPISODES+ 1,save_interval):
             filename = f'anet_{ep}.pt'
             anet.save_model(os.path.join(self.model_path, filename))
+    '''
 
     def reinforcement_learner(self, exploration_rate, path_to_weights=None):
         index = 0
+
         #Step 1 
         interval = INTERVAL #How frequently do we save the anet based on the amount of episodes run
         
@@ -37,32 +49,33 @@ class ReinforcementLearner():
         self.RBUF = []
         
         #Step 3
-        ANET = NeuralNetwork() #Instantiate an Anet object, need input?    
+        ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS) #initialize ANET. Define hex?
+
         if path_to_weights != None:
             ANET.load_model(path_to_weights) #anet function
 
         #Step 4
         for ep in range(TOTAL_EPISODES+1):
-            ANET.restart_epilson() #What is this? anet function
+            ANET.restart_epilson() #Sets epsilon = 1 
             print(f"This is the {ep}. game")
             
             #(a)(b)
             hex = HexGame(n=SIZE) 
             display = DisplayGame(hex)
-            display.draw_board(hex.winning_player, "Player 1", "Player 2")
+            #display.draw_board(hex.winning_player, "Player 1", "Player 2")
             start_node = Node(1,None,None) #Player 1 starts 
             
             #(c)
-            mcts = MCTS(hex, start_node,exploration_rate)
+            mcts = MCTS(hex, start_node, EXPLORATION_RATE)
             print("Run MCTS to game over")
             print("-------------------------")
             
+
             #(d)
             while not hex.is_game_over():
                 root = start_node
                 index =+ 1
-                mcts.choose_action(root) #Skal egentlig ha med simulations i denne funksjonen, endre til run_simulations med ingen return, action velges ikke i mcts
-                D = mcts.get_distribution(root)
+                selected_node, D= mcts.choose_action(start_node)
                 board_state = hex.get_flat_representation()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) 
                 game_case = (board_state_inc_player, D)
