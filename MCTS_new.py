@@ -46,6 +46,34 @@ class MCTS():
         normalized_distribution = [float(i)/sum(distribution) for i in distribution]
         return normalized_distribution
 
+    
+    #New version of distribution using only visit counts 
+    def get_distribution2(self, root_node):
+        distribution = []
+        all_actions = self.game.get_legal_actions()
+
+        for action in all_actions:
+            action_to_child = False
+            for child in root_node.children:
+                if child.parent_action == action:
+                    distribution.append(child.visits)
+                    action_to_child == True
+                    break
+
+            if not action_to_child:
+                distribution.append(0)
+
+        sum_distribution = sum(distribution)
+        
+        # Check if sum_distribution is not zero to avoid division by zero error
+        if sum_distribution != 0:
+            normalized_distribution = [float(i) / sum_distribution for i in distribution]
+        else:
+            # If sum_distribution is zero, return a uniform distribution
+            num_actions = len(all_actions)
+            normalized_distribution = [1 / num_actions] * num_actions
+
+        return normalized_distribution
 
     def rollout(self, game): #Sende inn policy/ANET også
         current_rollout_state = game
