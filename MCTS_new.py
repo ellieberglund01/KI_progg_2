@@ -3,14 +3,15 @@ import copy
 from math import sqrt, log,inf
 import numpy as np
 import random
+from Anet import anet
 
 class MCTS():
-    def __init__(self, game_state, root_node, exploration_rate, epsilon): #initialize anet
+    def __init__(self, game_state, root_node, exploration_rate, anet): #initialize anet
         self.game = game_state
         self.root_node = root_node
         self.exploration_rate = exploration_rate 
         self.root_node.parent = None #pruner treet når en action blit tatt 
-        self.epsilon = epsilon
+        self.anet = anet
 
     def choose_action(self, root_node): #Policy, simulations, anet som input her også 
         print("Root node is now:", id(root_node))
@@ -39,13 +40,42 @@ class MCTS():
         #print("For player:", root_node.player, "best action is:", best_child.parent_action)
         return best_child, normalized_distribution
     
-    def get_distribution(self, root_node):
+    def get_distribution(self, root_node): #Include the fact that we have negative values
         distribution = []
         for child in root_node.children:
             distribution.append(-child.get_value())
-        normalized_distribution = [float(i)/sum(distribution) for i in distribution]
+        min_val = min(distribution)
+        max_val = max(distribution)
+        normalized_distribution = [(x - min_val) / (max_val - min_val) for x in distribution]
+        #normalized_distribution = [float(i)/sum(distribution) for i in distribution] #Kan hende dette blir feil mtp neg verdier
         return normalized_distribution
+    
+    def get_distribution2(self, root_node):
+        distribution = []
+        all_actions = self.game.get_legal_actions()
 
+        for action in all_actions:
+            action_to_child = False
+            for child in root_node.children:
+                if child.parent_action == action:
+                    distribution.append(child.visits)
+                    action_to_child == True
+                    break
+
+            if not action_to_child:
+                distribution.append(0)
+
+        sum_distribution = sum(distribution)
+        
+        # Check if sum_distribution is not zero to avoid division by zero error
+        if sum_distribution != 0:
+            normalized_distribution = [float(i) / sum_distribution for i in distribution]
+        else:
+            # If sum_distribution is zero, return a uniform distribution
+            num_actions = len(all_actions)
+            normalized_distribution = [1 / num_actions] * num_actions
+        return normalized_distribution
+        
 
     def rollout(self, game): #Sende inn policy/ANET også
         current_rollout_state = game
@@ -57,10 +87,11 @@ class MCTS():
         return current_rollout_state.game_result() 
     
     def rollout_policy(self, possible_moves): # her skal ANET inn (ny klasse)
-        if self.epsilon > np.random.rand():
+        if self.anet.get_epsilon() > np.random.rand(): #want epsilon to get smaller
             return random.choice(possible_moves)
         else:
-            return random.choice(possible_moves)
+            return self.anet.predict(self.game, possible_moves)
+            #return anet.predict. Return best move/or Distribution.
             #return ANET action instead here!!! This is argmax from probability distribution tha tit returns
     
     def update_visit_count(self, node):

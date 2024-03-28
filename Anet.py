@@ -14,38 +14,52 @@ class NeuralNetwork:
         self.optmizer = optimizer
         self.epochs = epochs
         self.board_size=board_size
+        self.epsilon = 1
+        #input size
+        #output size
     
     #Builds neural network
     def build_model(self):
         model = tf.keras.Sequential() #groups a linear stack of layers into a tf.keras.Model.
-        model.add(tf.keras.Input(shape=(self.board_size**2+1,))) #Input layer. Board state + D.
+        model.add(tf.keras.Input(shape=(self.board_size**2+1,))) #Input layer. Board state + PID.
         for neurons in self.hidden_layers:
             model.add(tf.keras.Dense(neurons, activation=self.activation_function,)) #Hidden layers
-        model.add(tf.keras.Dense(self.board_size**2, activation=tf.keras.softmax,)) #Output layer
+        model.add(tf.keras.Dense(self.board_size**2, activation=tf.keras.softmax,)) #Output layer. Må vi ha softmax?
 
         #We specify the training configuration (optimizer, loss, metrics):
         model.compile(optimizer = self.optimizer(learning_rate=self.learning_rate), loss = ['mse'], metrics = ['accuracy'])
         model.summary()
         return model
     
-    def fit(self, minibatch: list): #Minibatch from RBUF (s,D). Fit funciton adjusts model parameters and minimize loss
+    def fit(self, minibatch: list): #Minibatch from RBUF (s,D). Fit funciton adjusts model parameters and minimize loss. s inneholder PID
         board_state = []
         distribution = []
         for element in minibatch:
-            board_state.append(element[0]) #board state 
+            board_state.append(element[0]) #board state + PID
             distribution.append(np.array(element[1])) #distribution of possible actions
 
-        hex_state = np.array(hex_state) #flatten hex board. x_train
+        board_state = np.array(board_state) #flatten hex board. x_train + PID
         distribution = np.array(distribution) #distribution list. y_train
-        self.model.fit(hex_state, distribution, batch_size=32, epochs=self.epochs) # her er den innebygde funksjonen fit. Tar inn x_train, y_train, epochs
+        self.model.fit(board_state, distribution, batch_size=32, epochs=self.epochs) # her er den innebygde funksjonen fit. Tar inn x_train, y_train, epochs
 
-    def predict(self, hex_state): #Predicts x_train
-        hex_state = tf.convert_to_tensor([hex_state]) #why convert to tensor? 
-        return self.model(hex_state)  #want it to be probabilistic, so maybe use softmax?
+
+    def predict(self, valid_and_invalid_actions, game): #Predicts x_train. Return best move or distribution on correct format
+        board_state = np.array(game).flatten()
+        board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i tening og predict?
+        output = self.model.predict(board_state).numpy().flatten() 
+        #Need to check valid moves
+        for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
+            if valid_and_invalid_actions[i] == 0:
+                output[i] == 0
+        output = tf.nn.softmax(output)
+        max_index = np.argmax(output)
+        return valid_and_invalid_actions[max_index] #returns best move?
     
+     
+    
+    #fix format
 
-
-
+    #Function to get weigts+biases saved to file for each interval
     #dette er komplisert, trenger ikke dette (enda)!
     '''
     def select_epsilon_greedy(self, hex_state):
@@ -70,6 +84,12 @@ class NeuralNetwork:
 
     def restart_epsilon(self):
         self.epsilon = 1 #Burde kunne restarte til en annen epsilon enn 1
+
+    def get_epsilon(self):
+        return self.epsilon
+    
+    def shrink_epsilon(self):
+        self.epsilon = self.epsilon * 0.99
 
 #Lage et supervised set 
 #Kjør 500 simuleringer med MCTS  med random rollout 
