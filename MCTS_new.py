@@ -3,7 +3,7 @@ import copy
 from math import sqrt, log,inf
 import numpy as np
 import random
-from Anet import anet
+from Anet import NeuralNetwork
 
 class MCTS():
     def __init__(self, game_state, root_node, exploration_rate, anet): #initialize anet
@@ -13,9 +13,9 @@ class MCTS():
         self.root_node.parent = None #pruner treet når en action blit tatt 
         self.anet = anet
 
-    def choose_action(self, root_node): #Policy, simulations, anet som input her også 
+    def choose_action(self, root_node, n_search_games): #Policy, simulations, anet som input her også 
         print("Root node is now:", id(root_node))
-        simulation_no = 10 #definere i init
+        simulation_no = n_search_games #definere i init
 
         for i in range(1,simulation_no+1):
             print("Current simulation:", {i})
@@ -26,17 +26,11 @@ class MCTS():
             self.expand(leaf1, game_copy) #Adds children to leaf node
             expanded_leaf, game_copy = self.tree_policy(leaf1, game_copy) #Chooses beste action/leaf node from leaf1
             game_result = self.rollout(game_copy)  #Simulates game from expanded leaf
-            path = self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
-            #for node in path:
-                #print("Path parent action:", node.parent_action, "Path visit count:", node.visits, "Path node value:", node.winning_count)
-
+            self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
+        
         #choosing the actual action in the game     
-        #print("Possible actions and their values:")
-        #print("current player:", root_node.player)
-        best_child = max(root_node.children,key=lambda child:-child.get_value())
-        normalized_distribution = self.get_distribution(root_node) #denne burde kalles på i main. skal egt brukes i valg
-        #get distribution
-        #print(child_values)
+        best_child = max(root_node.children,key=lambda child:-child.get_value()) #dette blir feil
+        normalized_distribution = self.get_distribution2(root_node) #denne burde kalles på i main. skal egt brukes i valg
         #print("For player:", root_node.player, "best action is:", best_child.parent_action)
         return best_child, normalized_distribution
     
@@ -50,9 +44,9 @@ class MCTS():
         #normalized_distribution = [float(i)/sum(distribution) for i in distribution] #Kan hende dette blir feil mtp neg verdier
         return normalized_distribution
     
-    def get_distribution2(self, root_node):
+    def get_distribution2(self, root_node): #Normalized visit counts
         distribution = []
-        all_actions = self.game.get_legal_actions()
+        all_actions = self.game.get_legal_actions() 
 
         for action in all_actions:
             action_to_child = False
@@ -77,22 +71,24 @@ class MCTS():
         return normalized_distribution
         
 
-    def rollout(self, game): #Sende inn policy/ANET også
+    def rollout(self, game):
         current_rollout_state = game
         while not current_rollout_state.is_game_over():
-            possible_actions = current_rollout_state.get_legal_actions()
-            action = self.rollout_policy(possible_actions)
-            #print("Player:", game.player_turn, "takes random action",action)
+            action = self.rollout_policy(current_rollout_state)
             current_rollout_state = current_rollout_state.move(action)
         return current_rollout_state.game_result() 
     
-    def rollout_policy(self, possible_moves): # her skal ANET inn (ny klasse)
-        if self.anet.get_epsilon() > np.random.rand(): #want epsilon to get smaller
-            return random.choice(possible_moves)
+    def rollout_policy(self, current_rollout_state): # her skal ANET inn (ny klasse)
+        possible_actions = current_rollout_state.get_legal_actions()
+        valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
+        self.anet.epsilon = self.anet.epsilon * 0.99 #want epsilon to get smaller
+        if self.anet.get_epsilon() > np.random.rand():
+            print("random choice")
+            return random.choice(possible_actions)
         else:
-            return self.anet.predict(self.game, possible_moves)
-            #return anet.predict. Return best move/or Distribution.
-            #return ANET action instead here!!! This is argmax from probability distribution tha tit returns
+            print("anet choice")
+            return self.anet.predict(valid_and_invalid_actions, current_rollout_state) #returns best move based on distribution
+            
     
     def update_visit_count(self, node):
         while node != None:

@@ -25,6 +25,16 @@ class HexGame():
                 if self.is_valid_move(row, col):
                     legal_actions_list.append((row, col))
         return legal_actions_list
+    
+    def get_legal_actions_with_0(self):
+        legal_actions_list = []
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                if self.is_valid_move(row, col):
+                    legal_actions_list.append((row, col))
+                else:
+                    legal_actions_list.append(0)
+        return legal_actions_list
 
     def move(self, action):
         row = action[0]

@@ -1,6 +1,6 @@
 import tensorflow as tf
-from Hex import hex
-from numpy import np
+from keras.layers import Dense, Input
+import numpy as np
 import random
 
 print("TensorFlow version:", tf.__version__)
@@ -9,25 +9,25 @@ class NeuralNetwork:
     def __init__(self, activation_function, hidden_layers, learning_rate, optimizer, epochs, board_size): 
         self.learning_rate = learning_rate
         self.activation_function = activation_function
-        self.model = self.build_model()
         self.hidden_layers = hidden_layers
         self.optmizer = optimizer
         self.epochs = epochs
-        self.board_size=board_size
+        self.board_size = board_size
         self.epsilon = 1
+        self.model = self.build_model()
         #input size
-        #output size
+
     
     #Builds neural network
     def build_model(self):
-        model = tf.keras.Sequential() #groups a linear stack of layers into a tf.keras.Model.
-        model.add(tf.keras.Input(shape=(self.board_size**2+1,))) #Input layer. Board state + PID.
+        model = tf.keras.models.Sequential() #groups a linear stack of layers into a tf.keras.Model.
+        model.add(Input(shape=(self.board_size**2+1,))) #Input layer. Board state + PID. Mulig denne kun tar inn integers og ikke tuples?
         for neurons in self.hidden_layers:
-            model.add(tf.keras.Dense(neurons, activation=self.activation_function,)) #Hidden layers
-        model.add(tf.keras.Dense(self.board_size**2, activation=tf.keras.softmax,)) #Output layer. Må vi ha softmax?
+            model.add(tf.keras.layers.Dense(neurons, activation=self.activation_function,)) #Hidden layers
+        model.add(tf.keras.layers.Dense(self.board_size**2, activation=tf.keras.activations.softmax,)) #Output layer. Må vi ha softmax?
 
         #We specify the training configuration (optimizer, loss, metrics):
-        model.compile(optimizer = self.optimizer(learning_rate=self.learning_rate), loss = ['mse'], metrics = ['accuracy'])
+        model.compile(optimizer = 'adam', loss = ['mse'], metrics = ['accuracy'])
         model.summary()
         return model
     
@@ -47,7 +47,7 @@ class NeuralNetwork:
         board_state = np.array(game).flatten()
         board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i tening og predict?
         output = self.model.predict(board_state).numpy().flatten() 
-        #Need to check valid moves
+    
         for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
             if valid_and_invalid_actions[i] == 0:
                 output[i] == 0

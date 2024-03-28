@@ -7,6 +7,7 @@ from Anet import NeuralNetwork
 from MCTS_new import MCTS, Node
 from Hex import HexGame 
 from Display import DisplayGame
+from tensorflow import keras
 from keras.optimizers import Adam
 from keras.activations import relu
 
@@ -60,7 +61,7 @@ class ReinforcementLearner():
             print(f"This is the {ep}. game")
             
             #(a)(b)
-            hex = HexGame(n=SIZE) 
+            hex = HexGame(SIZE) 
             display = DisplayGame(hex)
             start_node = Node(1,None,None) #Player 1 starts
             mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET) 
@@ -129,3 +130,8 @@ class ReinforcementLearner():
         
         pickle.dump(self.RBUF, open("......"))#What is this?
     
+  
+
+
+RL = ReinforcementLearner()
+RL.reinforcement_learner()
