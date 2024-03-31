@@ -1,4 +1,5 @@
 import tensorflow as tf
+from keras import layers
 from keras.layers import Dense, Input
 import numpy as np
 import random
@@ -21,7 +22,7 @@ class NeuralNetwork:
     #Builds neural network
     def build_model(self):
         model = tf.keras.models.Sequential() #groups a linear stack of layers into a tf.keras.Model.
-        model.add(Input(shape=(self.board_size**2+1,))) #Input layer. Board state + PID. Mulig denne kun tar inn integers og ikke tuples?
+        model.add(tf.keras.layers.Input(shape=(self.board_size**2+self.board_size**2+1,))) #Input layer. Board state + PID. Mulig denne kun tar inn integers og ikke tuples?
         for neurons in self.hidden_layers:
             model.add(tf.keras.layers.Dense(neurons, activation=self.activation_function,)) #Hidden layers
         model.add(tf.keras.layers.Dense(self.board_size**2, activation=tf.keras.activations.softmax,)) #Output layer. Må vi ha softmax?
@@ -44,18 +45,36 @@ class NeuralNetwork:
 
 
     def predict(self, valid_and_invalid_actions, game): #Predicts x_train. Return best move or distribution on correct format
-        board_state = np.array(game).flatten()
+        board_state = np.array(game.board).flatten()
         board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i tening og predict?
-        output = self.model.predict(board_state).numpy().flatten() 
-    
+        board_state = tf.convert_to_tensor([board_state])
+        print("board_state", board_state)
+        output = self.model.predict(board_state).flatten()
+        print("output", output)
+        print("valid_and_invalid_actions", valid_and_invalid_actions)
         for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
             if valid_and_invalid_actions[i] == 0:
-                output[i] == 0
-        output = tf.nn.softmax(output)
+                print("invalid action")
+                output[i] = 0
+        print(output)
+        output = self.custom_soft_max(output)
+        print("Normalized output", output)
         max_index = np.argmax(output)
         return valid_and_invalid_actions[max_index] #returns best move?
     
-     
+    #Custom softmax function so 0 values are still 0
+    def custom_soft_max(self, arr):
+        # Find non-zero indices and values
+        non_zero_indices = np.where(arr != 0)[0]
+        non_zero_values = arr[non_zero_indices]
+        # Compute softmax only on non-zero values
+        exp_values = np.exp(non_zero_values - np.max(non_zero_values))
+        softmax_values = exp_values / np.sum(exp_values)
+        # Initialize result array with zeros
+        result = np.zeros_like(arr)
+        # Assign softmax values to non-zero indices
+        result[non_zero_indices] = softmax_values
+        return result
     
     #fix format
 

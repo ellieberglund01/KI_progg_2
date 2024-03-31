@@ -72,15 +72,18 @@ class ReinforcementLearner():
             #(d)
             while not hex.is_game_over():
                 index += 1
-                selected_node, D = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) #må vel endre til å hente ut max D. kan fjerne selected_noce
+                selected_node, D = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
+                print("Children:", start_node.children)
+                print(hex.get_legal_actions_with_0)
+                print('DISTRIBUTION:', D) #D is the distribution of visit counts in MCT along all arcs emanating from root
                 #selected_action = selected_node.parent_action 
     
-                #alternative til å velge best action fra max D:
+                #alternative til å velge best action fra max D. Noe feil her
                 best_child_index = np.argmax(D)
                 best_child =  start_node.children[best_child_index]
                 selected_action = best_child.parent_action 
 
-                board_state = hex.get_flat_representation()
+                board_state = np.array(hex.board).flatten()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) #sets player_turn at index 0
                 game_case = (board_state_inc_player, D)
                 
