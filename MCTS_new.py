@@ -29,19 +29,16 @@ class MCTS():
             self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
         
         #choosing the actual action in the game     
-        best_child = max(root_node.children,key=lambda child:-child.get_value()) #dette blir feil
-        normalized_distribution = self.get_distribution2(root_node) #denne burde kalles på i main. skal egt brukes i valg
+        best_child = max(root_node.children,key=lambda child:child.visits) #dette blir feil
+        normalized_distribution = self.get_distribution(root_node) #denne burde kalles på i main. skal egt brukes i valg
         #print("For player:", root_node.player, "best action is:", best_child.parent_action)
         return best_child, normalized_distribution
     
     def get_distribution(self, root_node): #Include the fact that we have negative values
         distribution = []
         for child in root_node.children:
-            distribution.append(-child.get_value())
-        min_val = min(distribution)
-        max_val = max(distribution)
-        normalized_distribution = [(x - min_val) / (max_val - min_val) for x in distribution]
-        #normalized_distribution = [float(i)/sum(distribution) for i in distribution] #Kan hende dette blir feil mtp neg verdier
+            distribution.append(child.visits)
+        normalized_distribution = [float(i)/sum(distribution) for i in distribution] #Kan hende dette blir feil mtp neg verdier
         return normalized_distribution
     
     def get_distribution2(self, root_node): #Normalized visit counts. Noe muffins

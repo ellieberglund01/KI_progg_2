@@ -76,12 +76,15 @@ class ReinforcementLearner():
                 print("Children:", start_node.children)
                 print(hex.get_legal_actions_with_0)
                 print('DISTRIBUTION:', D) #D is the distribution of visit counts in MCT along all arcs emanating from root
+                #SPØRSMÅL: skal distribusjon inkludere alle actions eller kun children til start_node?
                 #selected_action = selected_node.parent_action 
     
                 #alternative til å velge best action fra max D. Noe feil her
                 best_child_index = np.argmax(D)
                 best_child =  start_node.children[best_child_index]
                 selected_action = best_child.parent_action 
+                print('selected action from MCS:', selected_node.parent_action)
+                print("selected action based on D", selected_action)
 
                 board_state = np.array(hex.board).flatten()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) #sets player_turn at index 0
