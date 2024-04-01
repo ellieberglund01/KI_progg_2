@@ -65,30 +65,24 @@ class ReinforcementLearner():
             display = DisplayGame(hex)
             start_node = Node(1,None,None) #Player 1 starts
             mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET) 
-            
             print("Run MCTS to game over")
             print("-------------------------")
-            
+
             #(d)
             while not hex.is_game_over():
                 index += 1
-                selected_node, D = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
-                print("Children:", start_node.children)
-                print(hex.get_legal_actions_with_0)
-                print('DISTRIBUTION:', D) #D is the distribution of visit counts in MCT along all arcs emanating from root
+                D1, D2 = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
+                print('DISTRIBUTION1:', D1) #D is the distribution of visit counts in MCT along all arcs emanating from root
+                print('DISTRIBUTION2:', D2)
                 #SPØRSMÅL: skal distribusjon inkludere alle actions eller kun children til start_node?
-                #selected_action = selected_node.parent_action 
-    
-                #alternative til å velge best action fra max D. Noe feil her
-                best_child_index = np.argmax(D)
+                best_child_index = np.argmax(D1)
                 best_child =  start_node.children[best_child_index]
                 selected_action = best_child.parent_action 
-                print('selected action from MCS:', selected_node.parent_action)
                 print("selected action based on D", selected_action)
 
                 board_state = np.array(hex.board).flatten()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) #sets player_turn at index 0
-                game_case = (board_state_inc_player, D)
+                game_case = (board_state_inc_player, D2)
                 
                 if len(self.RBUF) < TOTAL_BATCH:
                     self.RBUF.append(game_case) #Need to set a limit on number of batches 
@@ -103,16 +97,6 @@ class ReinforcementLearner():
                 mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET)
                 #shrink epsilon per simulation or per action?
 
-    
-                
-                #Do we need this:?
-                """D_copy = copy.deepcopy(D)
-                while not hex.valid_move(actual_move):
-                    D_copy[actual_move] = 0
-                    actual_move = np.argmax(D_copy)"""
-            
-            
-            #Game finished
             display.draw_board(hex.player_turn, "Player 1", "Player 2")
             print(f"DONE with MCTs for game: {ep}")
 

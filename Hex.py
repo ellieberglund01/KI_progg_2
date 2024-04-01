@@ -45,12 +45,6 @@ class HexGame():
         
             if not self.is_game_over():
                 self.player_turn = 3 - self.player_turn
-            """if self.is_game_over():
-                print("Player won:", self.player_turn) #Terminate game
-            else:
-                print("still playing")
-                self.player_turn = 3 - self.player_turn  # Switch player"""
-            
             self.display() 
         else:
             print("Not a valid move")
@@ -90,8 +84,6 @@ class HexGame():
                 if self.board[0][col] == (0,1) and self.dfs((0,1), 0, col, set()):
                     return True       
         return False
-
-    
 
     def dfs(self, player_piece, row, col, visited):
         if player_piece == (1,0) and col == self.board_size - 1:

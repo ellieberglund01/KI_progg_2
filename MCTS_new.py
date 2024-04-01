@@ -6,18 +6,15 @@ import random
 from Anet import NeuralNetwork
 
 class MCTS():
-    def __init__(self, game_state, root_node, exploration_rate, anet): #initialize anet
+    def __init__(self, game_state, root_node, exploration_rate, anet): 
         self.game = game_state
         self.root_node = root_node
         self.exploration_rate = exploration_rate 
         self.root_node.parent = None #pruner treet når en action blit tatt 
         self.anet = anet
 
-    def choose_action(self, root_node, n_search_games): #Policy, simulations, anet som input her også 
-        print("Root node is now:", id(root_node))
-        simulation_no = n_search_games #definere i init
-
-        for i in range(1,simulation_no+1):
+    def choose_action(self, root_node, n_search_games): 
+        for i in range(1,n_search_games+1):
             print("Current simulation:", {i})
             print("-----------------")
             node = root_node
@@ -27,12 +24,10 @@ class MCTS():
             expanded_leaf, game_copy = self.tree_policy(leaf1, game_copy) #Chooses beste action/leaf node from leaf1
             game_result = self.rollout(game_copy)  #Simulates game from expanded leaf
             self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
-        
-        #choosing the actual action in the game     
-        best_child = max(root_node.children,key=lambda child:child.visits) #dette blir feil
-        normalized_distribution = self.get_distribution(root_node) #denne burde kalles på i main. skal egt brukes i valg
-        #print("For player:", root_node.player, "best action is:", best_child.parent_action)
-        return best_child, normalized_distribution
+        #best_child = max(root_node.children,key=lambda child: -child.get_value()) #dette blir feil
+        normalized_distribution1 = self.get_distribution(root_node)
+        normalized_distribution2 = self.get_distribution2(root_node)
+        return normalized_distribution1,normalized_distribution2
     
     def get_distribution(self, root_node): #Include the fact that we have negative values
         distribution = []
@@ -41,33 +36,24 @@ class MCTS():
         normalized_distribution = [float(i)/sum(distribution) for i in distribution] #Kan hende dette blir feil mtp neg verdier
         return normalized_distribution
     
-    def get_distribution2(self, root_node): #Normalized visit counts. Noe muffins
+    #Distribution including all moves, ensures list length of board_size**2
+    def get_distribution2(self, root_node):
         distribution = []
-        all_actions = self.game.get_legal_actions()
-
+        all_actions = self.game.get_legal_actions_with_0()
         for action in all_actions:
             action_to_child = False
             for child in root_node.children:
                 if child.parent_action == action:
                     distribution.append(child.visits)
-                    action_to_child == True
+                    action_to_child = True
                     break
-
             if not action_to_child:
                 distribution.append(0)
-
         sum_distribution = sum(distribution)
-        
-        # Check if sum_distribution is not zero to avoid division by zero error
-        if sum_distribution != 0:
-            normalized_distribution = [float(i) / sum_distribution for i in distribution]
-        else:
-            # If sum_distribution is zero, return a uniform distribution
-            num_actions = len(all_actions)
-            normalized_distribution = [1 / num_actions] * num_actions
+        normalized_distribution = [float(i) / sum_distribution for i in distribution]
         return normalized_distribution
         
-    def get_distribution3(self, root_node):
+    """def get_distribution3(self, root_node):
         print(len(root_node.children))
         print(len(self.game.get_legal_actions_with_0()))
               
@@ -86,7 +72,7 @@ class MCTS():
                 normalized_distribution.append(0)
             else:
                 normalized_distribution.append(norm_non_zero_values)
-        return normalized_distribution
+        return normalized_distribution"""
     
     def rollout(self, game):
         current_rollout_state = game
@@ -95,7 +81,7 @@ class MCTS():
             current_rollout_state = current_rollout_state.move(action)
         return current_rollout_state.game_result() 
     
-    def rollout_policy(self, current_rollout_state): # her skal ANET inn (ny klasse)
+    def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
         self.anet.epsilon = self.anet.epsilon * 0.99 #want epsilon to get smaller
@@ -127,13 +113,11 @@ class MCTS():
     def tree_policy(self, node, game):
         current_node = node
         actions = []
-        #print("TREE POLICY")
-        #print("number of children/actions;", len(current_node.children))
         while len(current_node.children) != 0:
             current_score = float('-inf')
             best_node = None
-            for i in range (len(current_node.children)): #endre til branch?
-                if current_node.children[i].get_score_for_parent(self.exploration_rate) > current_score: #if ubc to child is higher than current ubc
+            for i in range (len(current_node.children)):
+                if current_node.children[i].get_score_for_parent(self.exploration_rate) > current_score: 
                     best_node = current_node.children[i]   
                     current_score = best_node.get_score_for_parent(self.exploration_rate)
                     
@@ -144,8 +128,6 @@ class MCTS():
         
         for action in actions:
             game.move(action)
-            #print("In tree policy, action:",action, "is taken")
-        #print("----Tre policy done----")
         return current_node, game
 
     def create_child(self,parent, parent_action):
@@ -156,7 +138,7 @@ class MCTS():
             return child
     
     def expand(self,initial_node, game):
-        actions = game.get_legal_actions()
+        actions = game.get_legal_actions() #Mulig vi må legge til alle actions 
         for action in actions:
             child = self.create_child(initial_node, action)
             if child not in initial_node.children: 
