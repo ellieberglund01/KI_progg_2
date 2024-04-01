@@ -18,7 +18,6 @@ class NeuralNetwork:
         self.model = self.build_model()
         #input size
 
-    #PROBLEM: Hvordan kan NN forstå boardet's state  dersom input er en liste hvor tuple-strukturen er fjernet?
     
     #Builds neural network
     def build_model(self):
@@ -33,6 +32,7 @@ class NeuralNetwork:
         model.summary()
         return model
     
+
     def fit(self, minibatch: list): #Minibatch from RBUF (s,D). Fit funciton adjusts model parameters and minimize loss. s inneholder PID
         board_state = []
         distribution = []
@@ -44,17 +44,18 @@ class NeuralNetwork:
         distribution = np.array(distribution) #distribution list. y_train
         self.model.fit(board_state, distribution, batch_size=32, epochs=self.epochs) # her er den innebygde funksjonen fit. Tar inn x_train, y_train, epochs
 
+
     def predict(self, valid_and_invalid_actions, game): #Predicts x_train. Return best move or distribution on correct format
         board_state = np.array(game.board).flatten()
-        board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i trening og predict?
+        board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i tening og predict?
         board_state = tf.convert_to_tensor([board_state])
         print("board_state", board_state)
         output = self.model.predict(board_state).flatten()
-        print("output", output)
         print("valid_and_invalid_actions", valid_and_invalid_actions)
         for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
             if valid_and_invalid_actions[i] == 0:
                 output[i] = 0
+        print(output)
         output = self.custom_soft_max(output)
         print("Normalized output", output)
         max_index = np.argmax(output)
@@ -75,6 +76,7 @@ class NeuralNetwork:
         return result
     
     #fix format
+
     #Function to get weigts+biases saved to file for each interval
     #dette er komplisert, trenger ikke dette (enda)!
     '''
@@ -91,10 +93,11 @@ class NeuralNetwork:
 
     '''
 
-    def save_model(self, path):
+
+    def save_weights(self, path):
         self.model.save_weights(path)
 
-    def load_model(self, path):
+    def load_weights(self, path):
         self.model.load_weights(path)
 
     def restart_epsilon(self):

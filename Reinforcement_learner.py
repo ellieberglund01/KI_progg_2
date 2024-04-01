@@ -10,10 +10,12 @@ from Display import DisplayGame
 from tensorflow import keras
 from keras.optimizers import Adam
 from keras.activations import relu
+import tensorflow as tf
+import torch
 
 TRAINING_BATCH = 10
 SIZE = 3
-TOTAL_EPISODES = 10
+TOTAL_EPISODES = 20
 TOTAL_BATCH = 10
 INTERVAL = 10
 HIDDEN_LAYERS = [128, 128, 128]
@@ -107,21 +109,15 @@ class ReinforcementLearner():
                 train = random.sample(self.RBUF, TRAINING_BATCH) #Take random sample batch from the the total batch in RBUF
             
             ANET.fit(train) #train anet on the random sample batch
-            number_of_anet = 1 #?
+            print(f"Done training on episode {ep}")
+            #number_of_anet = 1 #?
 
             #(f)
             if ep % interval == 0: #if interval= 10 this will be true for ep = 10,20, 30, 40 ....
                 print("Saving anet's parameters for later use in tournament")
-                number_of_anet += 1
-                filename = f'anet{number_of_anet}-{ep}.h5'
-                ANET.save_model(os.path.join(self.model_path, filename)) #How does this work?
-                self.episode_files.append(filename)
-                pickle.dump(self.RBUF, open("......")) #What is this?
-        
-        pickle.dump(self.RBUF, open("......"))#What is this?
-    
-  
-
-
+                ANET.save_weights('ANET_parameters.weights.h5')
+                ANET.load_weights('ANET_parameters.weights.h5')
+                #number_of_anet += 1
+                
 RL = ReinforcementLearner()
 RL.reinforcement_learner()
