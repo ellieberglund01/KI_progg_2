@@ -18,6 +18,7 @@ class NeuralNetwork:
         self.model = self.build_model()
         #input size
 
+    #PROBLEM: Hvordan kan NN forstå boardet's state  dersom input er en liste hvor tuple-strukturen er fjernet?
     
     #Builds neural network
     def build_model(self):
