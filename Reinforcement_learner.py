@@ -26,24 +26,15 @@ OPTIMIZER = Adam
 LEARNING_RATE = 0.001
 EPOCHS = 3
 EXPLORATION_RATE = 0.01
-
+ 
 
 class ReinforcementLearner():
 
     def __init__(self):
-        self.model_path = os.path.join(os.getcwd(), 'models') #?
-        self.episode_files = []
+       
         self.RBUF = []
 
-    #Do we need this?
-    '''
-    def save_episodes_to_file(self, anet, save_interval):
-        for ep in range (0,  TOTAL_EPISODES+ 1,save_interval):
-            filename = f'anet_{ep}.pt'
-            anet.save_model(os.path.join(self.model_path, filename))
-    '''
-
-    def reinforcement_learner(self, path_to_weights=None):
+    def reinforcement_learner(self):
         index = 0
         #Step 1 
         interval = INTERVAL #How frequently do we save parameters from anet based on the amount of episodes run. 
@@ -51,17 +42,10 @@ class ReinforcementLearner():
         self.RBUF = []
         #Step 3
         ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE) #initialize ANET. Models gets built
-
-        '''
-        if path_to_weights != None:
-            ANET.load_model(path_to_weights) #anet function
-        '''
-        
         #Step 4
-        for ep in range(TOTAL_EPISODES+1):
+        for ep in range(TOTAL_EPISODES):
             ANET.restart_epsilon() #sets epsilon to 1 for each actual game
             print(f"This is the {ep}. game")
-            
             #(a)(b)
             hex = HexGame(SIZE) 
             display = DisplayGame(hex)
@@ -69,14 +53,16 @@ class ReinforcementLearner():
             mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET) 
             print("Run MCTS to game over")
             print("-------------------------")
-
             #(d)
             while not hex.is_game_over():
                 index += 1
                 D1, D2 = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
-                print('DISTRIBUTION1:', D1) #D is the distribution of visit counts in MCT along all arcs emanating from root
-                print('DISTRIBUTION2:', D2)
+                print('DISTRIBUTION1:', D1) #D1 is the distribution of visit counts in MCT along legal arcs emanating from root 
+                print('DISTRIBUTION2:', D2) #D2 include all actions
+                
                 #SPØRSMÅL: skal distribusjon inkludere alle actions eller kun children til start_node?
+                
+                #Mulig vi trenger random og ikke bare argmax men heller ta et valg basert på distribution 
                 best_child_index = np.argmax(D1)
                 best_child =  start_node.children[best_child_index]
                 selected_action = best_child.parent_action 
@@ -97,7 +83,9 @@ class ReinforcementLearner():
                 hex.display()
                 start_node = best_child
                 mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET)
-                #shrink epsilon per simulation or per action?
+                #shrink epsilon per simulation action or per actual action?
+                ANET.epsilon = ANET.epsilon * 0.99
+
 
             display.draw_board(hex.player_turn, "Player 1", "Player 2")
             print(f"DONE with MCTs for game: {ep}")
@@ -110,14 +98,14 @@ class ReinforcementLearner():
             
             ANET.fit(train) #train anet on the random sample batch
             print(f"Done training on episode {ep}")
-            #number_of_anet = 1 #?
 
             #(f)
             if ep % interval == 0: #if interval= 10 this will be true for ep = 10,20, 30, 40 ....
                 print("Saving anet's parameters for later use in tournament")
                 ANET.save_weights('ANET_parameters.weights.h5')
                 ANET.load_weights('ANET_parameters.weights.h5')
-                #number_of_anet += 1
+
                 
+
 RL = ReinforcementLearner()
 RL.reinforcement_learner()

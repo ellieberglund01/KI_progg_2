@@ -16,12 +16,11 @@ class NeuralNetwork:
         self.board_size = board_size
         self.epsilon = 1
         self.model = self.build_model()
-        #input size
 
-    
     #Builds neural network
     def build_model(self):
         model = tf.keras.models.Sequential() #groups a linear stack of layers into a tf.keras.Model.
+        #Change PID to 0 and 1 
         model.add(tf.keras.layers.Input(shape=(self.board_size**2+self.board_size**2+1,))) #Input layer. Board state + PID. Mulig denne kun tar inn integers og ikke tuples?
         for neurons in self.hidden_layers:
             model.add(tf.keras.layers.Dense(neurons, activation=self.activation_function,)) #Hidden layers
@@ -32,7 +31,6 @@ class NeuralNetwork:
         model.summary()
         return model
     
-
     def fit(self, minibatch: list): #Minibatch from RBUF (s,D). Fit funciton adjusts model parameters and minimize loss. s inneholder PID
         board_state = []
         distribution = []
@@ -74,25 +72,6 @@ class NeuralNetwork:
         # Assign softmax values to non-zero indices
         result[non_zero_indices] = softmax_values
         return result
-    
-    #fix format
-
-    #Function to get weigts+biases saved to file for each interval
-    #dette er komplisert, trenger ikke dette (enda)!
-    '''
-    def select_epsilon_greedy(self, hex_state):
-        self.epsilon = self.epsilon * 0.9
-        if random.random() < 1: #Burde kunne endre epsilon
-            return self.choose_uniform(hex_state)
-        return self.select_greedy_move(hex_state)
-    
-    def choose_uniform(self, hex_state):
-        board = hex_state[1:]
-        valid_moves = [i for i in range(len(board)) if board[i] == 0]
-        return random.choice(valid_moves)
-
-    '''
-
 
     def save_weights(self, path):
         self.model.save_weights(path)

@@ -24,6 +24,7 @@ class MCTS():
             expanded_leaf, game_copy = self.tree_policy(leaf1, game_copy) #Chooses beste action/leaf node from leaf1
             game_result = self.rollout(game_copy)  #Simulates game from expanded leaf
             self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
+       
         #best_child = max(root_node.children,key=lambda child: -child.get_value()) #dette blir feil
         normalized_distribution1 = self.get_distribution(root_node)
         normalized_distribution2 = self.get_distribution2(root_node)
@@ -52,28 +53,7 @@ class MCTS():
         sum_distribution = sum(distribution)
         normalized_distribution = [float(i) / sum_distribution for i in distribution]
         return normalized_distribution
-        
-    """def get_distribution3(self, root_node):
-        print(len(root_node.children))
-        print(len(self.game.get_legal_actions_with_0()))
-              
-        distribution = []
-        for child in root_node.children:
-            if child.parent_action in self.game.get_legal_actions():
-                distribution.append(child.visits)
-            else:
-                distribution.append(0)
-        
-        non_zero_values = [x for x in distribution if x != 0]
-        norm_non_zero_values = [(x - min(non_zero_values)) / (max(non_zero_values) - min(non_zero_values)) for x in non_zero_values]
-        normalized_distribution = []
-        for val in distribution:
-            if val == 0:
-                normalized_distribution.append(0)
-            else:
-                normalized_distribution.append(norm_non_zero_values)
-        return normalized_distribution"""
-    
+
     def rollout(self, game):
         current_rollout_state = game
         while not current_rollout_state.is_game_over():
@@ -84,7 +64,7 @@ class MCTS():
     def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
-        self.anet.epsilon = self.anet.epsilon * 0.99 #want epsilon to get smaller
+        self.anet.epsilon = self.anet.epsilon * 0.99
         if self.anet.get_epsilon() > np.random.rand():
             print("random choice")
             return random.choice(possible_actions)
