@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras import layers
 from keras.layers import Dense, Input
 import numpy as np
-
+import pickle
 
 print("TensorFlow version:", tf.__version__)
 
@@ -87,6 +87,29 @@ class NeuralNetwork:
     
     def shrink_epsilon(self):
         self.epsilon = self.epsilon * 0.99
+
+
+def train_all_data():
+    RBUF = fetch_data()
+    anet = NeuralNetwork() 
+    anet.fit(RBUF)
+    #anet.save_model('./models/AllData.h5')
+
+
+def fetch_data():
+    RBUF = []
+    list_of_data = ['RBUF_game_cases.pkl']
+    player = pickle.load(open(list_of_data[0], "rb"))
+    
+    for i in range(1,len(list_of_data)):
+        board_state = pickle.load(open(list_of_data[i], "rb"))
+        RBUF = np.concatenate((player,board_state))
+
+    return RBUF
+# previous best 300
+#train_all_data()
+
+
 
 #Lage et supervised set 
 #Kjør 500 simuleringer med MCTS  med random rollout 

@@ -76,10 +76,6 @@ class ReinforcementLearner():
                     overwritten_index = index % TOTAL_BATCH #If we have reaced limit in batches the buffer is overwritten with new data cases 
                     self.RBUF[overwritten_index] = game_case 
 
-                # Save RBUF using pickle
-                with open('RBUF_game_cases.pkl', 'wb') as f:
-                    pickle.dump(self.RBUF, f)
-
                 hex.move(selected_action)
 
                 if VISUALIZATION:
@@ -93,30 +89,28 @@ class ReinforcementLearner():
 
             if VISUALIZATION:
                 display.draw_board(hex.player_turn, "Player 1", "Player 2")
-            
             print(f"DONE with MCTs for game: {ep}")
 
             #(e)
             if len(self.RBUF) < TRAINING_BATCH:
                 train = self.RBUF
             else:
-                train = random.sample(self.RBUF, TRAINING_BATCH) #Take random sample batch from the the total batch in RBUF
-            
+                train = random.sample(self.RBUF, TRAINING_BATCH) #Take random sample batch from the the total batch in RBUF  
             ANET.fit(train) #train anet on the random sample batch
             print(f"Done training on episode {ep}")
-
             #(f)
             if ep % interval == 0: #if interval= 10 this will be true for ep = 10,20, 30, 40 ....
                 print("Saving anet's parameters for later use in tournament")
                 ANET.save_weights('ANET_parameters.weights.h5')
                 ANET.load_weights('ANET_parameters.weights.h5')
+            
+        # Save RBUF using pickle
+        with open('RBUF_game_cases.pkl', 'wb') as f:
+            pickle.dump(self.RBUF, f)
 
-                
 
 RL = ReinforcementLearner()
 RL.reinforcement_learner()
-
-
 
 # Load the saved buffer from the pickle file
 with open('RBUF_game_cases.pkl', 'rb') as f:
@@ -130,10 +124,6 @@ for idx, game_case in enumerate(loaded_buffer):
     print()  
 
 
-#Remove data from file 
-"""
-with open('RBUF_game_cases.pkl', 'wb') as f:
-    f.truncate(0)
 
-print("Data in the file has been removed.")
-"""
+
+
