@@ -25,7 +25,6 @@ class MCTS():
             game_result = self.rollout(game_copy)  #Simulates game from expanded leaf
             self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
        
-        #best_child = max(root_node.children,key=lambda child: -child.get_value()) #dette blir feil
         normalized_distribution1 = self.get_distribution(root_node)
         normalized_distribution2 = self.get_distribution2(root_node)
         return normalized_distribution1,normalized_distribution2
@@ -64,7 +63,7 @@ class MCTS():
     def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
-        self.anet.epsilon = self.anet.epsilon * 0.99
+        print("rollout policy run")
         if self.anet.get_epsilon() > np.random.rand():
             print("random choice")
             return random.choice(possible_actions)
@@ -118,7 +117,7 @@ class MCTS():
             return child
     
     def expand(self,initial_node, game):
-        actions = game.get_legal_actions() #Mulig vi må legge til alle actions 
+        actions = game.get_legal_actions() 
         for action in actions:
             child = self.create_child(initial_node, action)
             if child not in initial_node.children: 

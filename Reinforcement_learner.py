@@ -15,23 +15,22 @@ import torch
 
 TRAINING_BATCH = 10
 SIZE = 3
-TOTAL_EPISODES = 20
-TOTAL_BATCH = 10
-INTERVAL = 10
+TOTAL_EPISODES = 5
+TOTAL_BATCH = 50
+INTERVAL = 2
 HIDDEN_LAYERS = [128, 128, 128]
-NUMBER_OF_BATCHES = 3000
-NUMBER_SEARCH_GAMES = 10
+NUMBER_SEARCH_GAMES = 10 #noen tusen 
 ACTIVATION_FUNCTION = relu
 OPTIMIZER = Adam
-LEARNING_RATE = 0.001
-EPOCHS = 3
+LEARNING_RATE = 0.01 #Viktig å justere 
+EPOCHS = 10
 EXPLORATION_RATE = 0.01
+VISUALIZATION = False
  
 
 class ReinforcementLearner():
 
     def __init__(self):
-       
         self.RBUF = []
 
     def reinforcement_learner(self):
@@ -59,9 +58,7 @@ class ReinforcementLearner():
                 D1, D2 = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
                 print('DISTRIBUTION1:', D1) #D1 is the distribution of visit counts in MCT along legal arcs emanating from root 
                 print('DISTRIBUTION2:', D2) #D2 include all actions
-                
-                #SPØRSMÅL: skal distribusjon inkludere alle actions eller kun children til start_node?
-                
+                    
                 #Mulig vi trenger random og ikke bare argmax men heller ta et valg basert på distribution 
                 best_child_index = np.argmax(D1)
                 best_child =  start_node.children[best_child_index]
@@ -73,21 +70,30 @@ class ReinforcementLearner():
                 game_case = (board_state_inc_player, D2)
                 
                 if len(self.RBUF) < TOTAL_BATCH:
-                    self.RBUF.append(game_case) #Need to set a limit on number of batches 
+                    self.RBUF.append(game_case) #Need to set a limit on 
+                    
                 else:
                     overwritten_index = index % TOTAL_BATCH #If we have reaced limit in batches the buffer is overwritten with new data cases 
                     self.RBUF[overwritten_index] = game_case 
-                
+
+                # Save RBUF using pickle
+                with open('RBUF_game_cases.pkl', 'wb') as f:
+                    pickle.dump(self.RBUF, f)
+
                 hex.move(selected_action)
-                display.draw_board(None,"player 1", "player 2")
-                hex.display()
+
+                if VISUALIZATION:
+                    display.draw_board(None,"player 1", "player 2")
+                    hex.display()
+
                 start_node = best_child
                 mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET)
-                #shrink epsilon per simulation action or per actual action?
-                ANET.epsilon = ANET.epsilon * 0.99
+                #ANET.epsilon = ANET.epsilon * 0.99 
+                """Avoid anet"""
 
-
-            display.draw_board(hex.player_turn, "Player 1", "Player 2")
+            if VISUALIZATION:
+                display.draw_board(hex.player_turn, "Player 1", "Player 2")
+            
             print(f"DONE with MCTs for game: {ep}")
 
             #(e)
@@ -109,3 +115,25 @@ class ReinforcementLearner():
 
 RL = ReinforcementLearner()
 RL.reinforcement_learner()
+
+
+
+# Load the saved buffer from the pickle file
+with open('RBUF_game_cases.pkl', 'rb') as f:
+    loaded_buffer = pickle.load(f)
+
+print("Number of game cases:", len(loaded_buffer))
+for idx, game_case in enumerate(loaded_buffer):
+    print(f"Game case {idx + 1}:")
+    print("Board state:", game_case[0])
+    print("Distribution:", game_case[1])
+    print()  
+
+
+#Remove data from file 
+"""
+with open('RBUF_game_cases.pkl', 'wb') as f:
+    f.truncate(0)
+
+print("Data in the file has been removed.")
+"""

@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras import layers
 from keras.layers import Dense, Input
 import numpy as np
-import random
+
 
 print("TensorFlow version:", tf.__version__)
 
