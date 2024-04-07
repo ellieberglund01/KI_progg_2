@@ -12,24 +12,10 @@ from keras.optimizers import Adam
 from keras.activations import relu
 import tensorflow as tf
 import torch
+from Config import *
 
-TRAINING_BATCH = 128
-SIZE = 7
-TOTAL_EPISODES = 1000
-TOTAL_BATCH = 3000
-INTERVAL = 2
-HIDDEN_LAYERS = [128, 128, 128]
-NUMBER_SEARCH_GAMES = 1000 #noen tusen 
-ACTIVATION_FUNCTION = relu
-OPTIMIZER = Adam
-LEARNING_RATE = 0.01 #Viktig å justere 
-EPOCHS = 10
-EXPLORATION_RATE = 0.01
-VISUALIZATION = False
- 
 
 class ReinforcementLearner():
-
     def __init__(self):
         self.RBUF = []
 
@@ -70,11 +56,11 @@ class ReinforcementLearner():
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) #sets player_turn at index 0
                 game_case = (board_state_inc_player, D2)
                 
-                if len(self.RBUF) < TOTAL_BATCH:
+                if len(self.RBUF) < TOTAL_BATCHES:
                     self.RBUF.append(game_case) #Need to set a limit on 
                     
                 else:
-                    overwritten_index = index % TOTAL_BATCH #If we have reaced limit in batches the buffer is overwritten with new data cases 
+                    overwritten_index = index % TOTAL_BATCHES #If we have reaced limit in batches the buffer is overwritten with new data cases 
                     self.RBUF[overwritten_index] = game_case 
 
                 hex.move(selected_action)
@@ -102,8 +88,8 @@ class ReinforcementLearner():
             #(f)
             if ep % interval == 0: #if interval= 10 this will be true for ep = 10,20, 30, 40 ....
                 print("Saving anet's parameters for later use in tournament")
-                ANET.save_weights('ANET_parameters.weights.h5')
-                ANET.load_weights('ANET_parameters.weights.h5')
+                filename = f'anet{ep}.h5'
+                ANET.save_weights(filename)
             
         # Save RBUF using pickle
         with open('RBUF_game_cases3.pkl', 'wb') as f:
