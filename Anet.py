@@ -7,8 +7,6 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import matplotlib.pyplot as plt
 
-print("TensorFlow version:", tf.__version__)
-
 class NeuralNetwork:
     def __init__(self, activation_function, hidden_layers, learning_rate, optimizer, epochs, board_size): 
         self.learning_rate = learning_rate
@@ -19,6 +17,7 @@ class NeuralNetwork:
         self.board_size = board_size
         self.epsilon = 1
         self.model = self.build_model()
+        self.anet_version = ''
 
     #Builds neural network
     def build_model(self):
@@ -76,11 +75,12 @@ class NeuralNetwork:
         result[non_zero_indices] = softmax_values
         return result
 
-    def save_weights(self, path):
-        self.model.save_weights(path)
+    def save_weights(self, filename):
+        self.model.save_weights(filename)
+        self.anet_version = filename
 
-    def load_weights(self, path):
-        self.model.load_weights(path)
+    def load_weights(self, filename):
+        self.model.load_weights(filename)
 
     def restart_epsilon(self):
         self.epsilon = 1 #Burde kunne restarte til en annen epsilon enn 1
@@ -96,7 +96,7 @@ class NeuralNetwork:
 
 def train_all_data():
     RBUF = pickle.load(open('RBUF_game_cases3.pkl', "rb"))
-    anet = NeuralNetwork(activation_function='relu', hidden_layers=[160,160,160], learning_rate=0.001, optimizer='adam', epochs=100, board_size=7) 
+    anet = NeuralNetwork(activation_function='relu', hidden_layers=[128,128,128], learning_rate=0.001, optimizer='adam', epochs=150, board_size=7) 
     board_state = []
     distribution = []
     for element in RBUF:
@@ -105,9 +105,9 @@ def train_all_data():
             element[1])) #distribution of possible actions
     board_state = np.array(board_state) #flatten hex board. x_train + PID
     distribution = np.array(distribution) #distribution list. y_train
-    #X_train, X_val, y_train, y_val = train_test_split(board_state, distribution, test_size=0.3, random_state=42)
-    history = anet.model.fit(board_state, distribution, epochs=100, batch_size=64) 
-    test_loss, test_acc = anet.model.evaluate(board_state, distribution)
+    X_train, X_val, y_train, y_val = train_test_split(board_state, distribution, test_size=0.3, random_state=42)
+    history = anet.model.fit(X_train, y_train, epochs=150, batch_size=128) 
+    test_loss, test_acc = anet.model.evaluate(X_val, y_val)
     print('Test accuracy:', test_acc)
     print('Test loss:', test_loss)
 
