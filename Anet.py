@@ -29,7 +29,7 @@ class NeuralNetwork:
         model.add(tf.keras.layers.Dense(self.board_size**2, activation=tf.keras.activations.softmax,)) #Output layer. Må vi ha softmax?
 
         #We specify the training configuration (optimizer, loss, metrics):
-        model.compile(optimizer = 'adam', loss = ['mse'], metrics = ['accuracy'])
+        model.compile(optimizer = 'adam', loss = 'mse', metrics = ['accuracy'])
         model.summary()
         return model
     
@@ -49,15 +49,15 @@ class NeuralNetwork:
         board_state = np.array(game.board).flatten()
         board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i tening og predict?
         board_state = tf.convert_to_tensor([board_state])
-        print("board_state", board_state)
+        #print("board_state", board_state)
         output = self.model.predict(board_state).flatten()
-        print("valid_and_invalid_actions", valid_and_invalid_actions)
+        #print("valid_and_invalid_actions", valid_and_invalid_actions)
         for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
             if valid_and_invalid_actions[i] == 0:
                 output[i] = 0
-        print(output)
+        #print(output)
         output = self.custom_soft_max(output)
-        print("Normalized output", output)
+        #print("Normalized output", output)
         max_index = np.argmax(output)
         return valid_and_invalid_actions[max_index] #returns best move?
     
@@ -118,7 +118,7 @@ def train_all_data():
     plt.show()
 
 
-train_all_data()
+#train_all_data()
 
 # previous best 300
 #train_all_data()

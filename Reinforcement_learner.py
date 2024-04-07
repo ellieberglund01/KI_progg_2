@@ -14,7 +14,6 @@ import tensorflow as tf
 import torch
 from Config import *
 
-
 class ReinforcementLearner():
     def __init__(self):
         self.RBUF = []
@@ -28,7 +27,7 @@ class ReinforcementLearner():
         #Step 3
         ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE) #initialize ANET. Models gets built
         #Step 4
-        for ep in range(TOTAL_EPISODES):
+        for ep in range(1,TOTAL_EPISODES+1):
             print(ep)
             ANET.restart_epsilon() #sets epsilon to 1 for each actual game
             print(f"This is the {ep}. game")
@@ -71,7 +70,7 @@ class ReinforcementLearner():
 
                 start_node = best_child
                 mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET)
-                #ANET.epsilon = ANET.epsilon * 0.99 
+                ANET.epsilon = ANET.epsilon * 0.999 
                 """Avoid anet"""
 
             if VISUALIZATION:
@@ -88,7 +87,7 @@ class ReinforcementLearner():
             #(f)
             if ep % interval == 0: #if interval= 10 this will be true for ep = 10,20, 30, 40 ....
                 print("Saving anet's parameters for later use in tournament")
-                filename = f'anet{ep}.h5'
+                filename = f'anet{ep}.weights.h5'
                 ANET.save_weights(filename)
             
         # Save RBUF using pickle
@@ -99,6 +98,8 @@ class ReinforcementLearner():
 RL = ReinforcementLearner()
 RL.reinforcement_learner()
 
+
+'''
 # Load the saved buffer from the pickle file
 with open('RBUF_game_cases.pkl', 'rb') as f:
     loaded_buffer = pickle.load(f)
@@ -109,7 +110,7 @@ for idx, game_case in enumerate(loaded_buffer):
     print("Board state:", game_case[0])
     print("Distribution:", game_case[1])
     print()  
-
+'''
 
 
 
