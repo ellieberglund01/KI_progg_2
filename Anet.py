@@ -3,6 +3,9 @@ from keras import layers
 from keras.layers import Dense, Input
 import numpy as np
 import pickle
+from sklearn.model_selection import train_test_split
+import numpy as np
+import matplotlib.pyplot as plt
 
 print("TensorFlow version:", tf.__version__)
 
@@ -89,23 +92,34 @@ class NeuralNetwork:
         self.epsilon = self.epsilon * 0.99
 
 
+
+
 def train_all_data():
-    RBUF = fetch_data()
-    anet = NeuralNetwork() 
-    anet.fit(RBUF)
-    #anet.save_model('./models/AllData.h5')
+    RBUF = pickle.load(open('RBUF_game_cases3.pkl', "rb"))
+    anet = NeuralNetwork(activation_function='relu', hidden_layers=[160,160,160], learning_rate=0.001, optimizer='adam', epochs=100, board_size=7) 
+    board_state = []
+    distribution = []
+    for element in RBUF:
+        board_state.append(element[0]) #board state + PID
+        distribution.append(np.array(
+            element[1])) #distribution of possible actions
+    board_state = np.array(board_state) #flatten hex board. x_train + PID
+    distribution = np.array(distribution) #distribution list. y_train
+    #X_train, X_val, y_train, y_val = train_test_split(board_state, distribution, test_size=0.3, random_state=42)
+    history = anet.model.fit(board_state, distribution, epochs=100, batch_size=64) 
+    test_loss, test_acc = anet.model.evaluate(board_state, distribution)
+    print('Test accuracy:', test_acc)
+    print('Test loss:', test_loss)
+
+    plt.plot(history.history['loss'])
+    plt.title('Model Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.show()
 
 
-def fetch_data():
-    RBUF = []
-    list_of_data = ['RBUF_game_cases.pkl']
-    player = pickle.load(open(list_of_data[0], "rb"))
-    
-    for i in range(1,len(list_of_data)):
-        board_state = pickle.load(open(list_of_data[i], "rb"))
-        RBUF = np.concatenate((player,board_state))
+train_all_data()
 
-    return RBUF
 # previous best 300
 #train_all_data()
 

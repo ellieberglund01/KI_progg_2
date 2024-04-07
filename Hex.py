@@ -38,11 +38,11 @@ class HexGame():
         col = action[1]
         if action in self.get_legal_actions():
             self.board[row][col] = (1, 0) if self.player_turn == 1 else (0, 1)
-            print("move made by:", {self.player_turn})
+            #print("move made by:", {self.player_turn})
         
             if not self.is_game_over():
                 self.player_turn = 3 - self.player_turn
-            self.display() 
+            #self.display() 
         else:
             print("Not a valid move")
         return self
@@ -51,11 +51,11 @@ class HexGame():
         if not self.is_game_over():
             raise ValueError("Game is not yet finished.")
         if self.player_turn == 1:
-            print("player 1 won")
+            #print("player 1 won")
             self.winner_player = 1
             return 1 
         else:
-            print("player 2 won")
+            #print("player 2 won")
             self.winning_player = 2
             return -1
                  

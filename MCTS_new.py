@@ -15,8 +15,8 @@ class MCTS():
 
     def choose_action(self, root_node, n_search_games): 
         for i in range(1,n_search_games+1):
-            print("Current simulation:", {i})
-            print("-----------------")
+            #print("Current simulation:", {i})
+            #print("-----------------")
             node = root_node
             game_copy = copy.deepcopy(self.game)
             leaf1, game_copy = self.tree_policy(node, game_copy) #explore best existing paths in the tree
@@ -63,9 +63,9 @@ class MCTS():
     def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
-        print("rollout policy run")
+        #print("rollout policy run")
         if self.anet.get_epsilon() > np.random.rand():
-            print("random choice")
+            #print("random choice")
             return random.choice(possible_actions)
         else:
             print("anet choice")

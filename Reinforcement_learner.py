@@ -13,13 +13,13 @@ from keras.activations import relu
 import tensorflow as tf
 import torch
 
-TRAINING_BATCH = 10
-SIZE = 3
-TOTAL_EPISODES = 5
-TOTAL_BATCH = 50
+TRAINING_BATCH = 128
+SIZE = 7
+TOTAL_EPISODES = 1000
+TOTAL_BATCH = 3000
 INTERVAL = 2
 HIDDEN_LAYERS = [128, 128, 128]
-NUMBER_SEARCH_GAMES = 10 #noen tusen 
+NUMBER_SEARCH_GAMES = 1000 #noen tusen 
 ACTIVATION_FUNCTION = relu
 OPTIMIZER = Adam
 LEARNING_RATE = 0.01 #Viktig å justere 
@@ -43,6 +43,7 @@ class ReinforcementLearner():
         ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE) #initialize ANET. Models gets built
         #Step 4
         for ep in range(TOTAL_EPISODES):
+            print(ep)
             ANET.restart_epsilon() #sets epsilon to 1 for each actual game
             print(f"This is the {ep}. game")
             #(a)(b)
@@ -50,14 +51,14 @@ class ReinforcementLearner():
             display = DisplayGame(hex)
             start_node = Node(1,None,None) #Player 1 starts
             mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET) 
-            print("Run MCTS to game over")
-            print("-------------------------")
+            #print("Run MCTS to game over")
+            #print("-------------------------")
             #(d)
             while not hex.is_game_over():
                 index += 1
                 D1, D2 = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
-                print('DISTRIBUTION1:', D1) #D1 is the distribution of visit counts in MCT along legal arcs emanating from root 
-                print('DISTRIBUTION2:', D2) #D2 include all actions
+                #print('DISTRIBUTION1:', D1) #D1 is the distribution of visit counts in MCT along legal arcs emanating from root 
+                #print('DISTRIBUTION2:', D2) #D2 include all actions
                     
                 #Mulig vi trenger random og ikke bare argmax men heller ta et valg basert på distribution 
                 best_child_index = np.argmax(D1)
@@ -105,7 +106,7 @@ class ReinforcementLearner():
                 ANET.load_weights('ANET_parameters.weights.h5')
             
         # Save RBUF using pickle
-        with open('RBUF_game_cases.pkl', 'wb') as f:
+        with open('RBUF_game_cases3.pkl', 'wb') as f:
             pickle.dump(self.RBUF, f)
 
 
