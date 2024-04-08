@@ -7,7 +7,7 @@ import random
 
 
 class TOPP:
-    def __init__(self, n_games, series=10):
+    def __init__(self, n_games, series):
         self.n_games = n_games 
         self.series = series
         self.points_per_anet = {}
@@ -68,7 +68,7 @@ class TOPP:
             print(f'Agent {matchup[0]} vs Agent {matchup[1]}: {score[0]} - {score[1]}')
 
 
-topp = TOPP(n_games=TOPP_GAMES)
+topp = TOPP(n_games=TOPP_GAMES, series= SERIES)
 agents = topp.load_agents()
 topp.run_tournament(agents)
 topp.display_results()
