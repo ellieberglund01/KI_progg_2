@@ -61,6 +61,18 @@ class NeuralNetwork:
         max_index = np.argmax(output)
         return valid_and_invalid_actions[max_index] #returns best move?
     
+    def predict_action_topp(self, valid_and_invalid_actions, board_state):
+        output = self.model.predict(board_state).flatten()
+        #print("valid_and_invalid_actions", valid_and_invalid_actions)
+        for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
+            if valid_and_invalid_actions[i] == 0:
+                output[i] = 0
+        #print(output)
+        output = self.custom_soft_max(output)
+        #print("Normalized output", output)
+        max_index = np.argmax(output)
+        return valid_and_invalid_actions[max_index] #returns best move?
+
     #Custom softmax function so 0 values are still 0
     def custom_soft_max(self, arr):
         # Find non-zero indices and values
