@@ -103,9 +103,6 @@ class NeuralNetwork:
     def shrink_epsilon(self):
         self.epsilon = self.epsilon * 0.99
 
-
-
-
 def train_all_data():
     RBUF = pickle.load(open('RBUF_game_cases3.pkl', "rb"))
     anet = NeuralNetwork(activation_function='relu', hidden_layers=[128,128,128], learning_rate=0.001, optimizer='adam', epochs=150, board_size=7) 
@@ -131,10 +128,8 @@ def train_all_data():
 
 
 #train_all_data()
-
-# previous best 300
+#previous best 300
 #train_all_data()
-
 
 
 #Lage et supervised set 

@@ -38,18 +38,19 @@ class ReinforcementLearner():
             mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET) 
             #print("Run MCTS to game over")
             #print("-------------------------")
-            #(d)
+            #(d)          
             while not hex.is_game_over():
                 index += 1
                 D1, D2 = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
-                #print('DISTRIBUTION1:', D1) #D1 is the distribution of visit counts in MCT along legal arcs emanating from root 
-                #print('DISTRIBUTION2:', D2) #D2 include all actions
-                    
+        
                 #Mulig vi trenger random og ikke bare argmax men heller ta et valg basert på distribution 
+                #chosen_child_index = select_from_D1(D1)
+                
                 best_child_index = np.argmax(D1)
                 best_child =  start_node.children[best_child_index]
                 selected_action = best_child.parent_action 
                 print("selected action based on D", selected_action)
+
 
                 board_state = np.array(hex.board).flatten()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) #sets player_turn at index 0
@@ -99,19 +100,26 @@ RL = ReinforcementLearner()
 RL.reinforcement_learner()
 
 
-'''
-# Load the saved buffer from the pickle file
-with open('RBUF_game_cases.pkl', 'rb') as f:
-    loaded_buffer = pickle.load(f)
 
-print("Number of game cases:", len(loaded_buffer))
-for idx, game_case in enumerate(loaded_buffer):
-    print(f"Game case {idx + 1}:")
-    print("Board state:", game_case[0])
-    print("Distribution:", game_case[1])
-    print()  
-'''
+#Functions to select action based on some randomness 
+def select_from_D1(D1):
+    if random.random() < 0.2:
+        print("max choice")
+        return np.argmax(D1)
+    print("porobabilistic choice")   
+    return choose_probabilistic(D1)
 
+def choose_probabilistic(D1):
+    # Create the cumuliative distribution intervals
+    out = [0]
+    for prob in D1:
+        out.append(out[-1] + prob)
+
+    print(out)
+    r = random.random()
+    for i in range(1, len(out)):
+        if r < out[i]:
+            return i - 1
 
 
 

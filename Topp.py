@@ -15,7 +15,7 @@ class TOPP:
 
     def load_agents2(self):
         agents = []
-        for ep in range(0,TOTAL_EPISODES):
+        for ep in range(1,TOTAL_EPISODES+1):
             if ep % INTERVAL == 0:
                 anet = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE)
                 filename = f'anet{ep}.weights.h5'
@@ -79,9 +79,9 @@ class TOPP:
         for matchup, score in self.scores_per_series.items():
             print(f'Agent {matchup[0]+1} vs Agent {matchup[1]+1}: {score[0]} - {score[1]}')
 
-
 topp = TOPP(n_games=TOPP_GAMES)
 agents = topp.load_agents2()
 topp.run_tournament(agents)
 topp.display_results()
+
 

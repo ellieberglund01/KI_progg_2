@@ -65,7 +65,7 @@ class MCTS():
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
         #print("rollout policy run")
         if self.anet.get_epsilon() > np.random.rand():
-            print("random choice")
+            #print("random choice")
             return random.choice(possible_actions)
         else:
             #print("anet choice")
