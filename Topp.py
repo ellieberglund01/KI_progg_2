@@ -49,7 +49,9 @@ class TOPP:
                 hex.move(action)
             else:
                 action = agent2.predict(actions, hex)
-                hex.move(action)    
+                hex.move(action) 
+                
+                   
         print('GAME OVER')
         display.draw_board(hex.player_turn, "Player 1", "Player 2")
         hex.display()

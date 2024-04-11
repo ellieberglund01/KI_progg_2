@@ -13,13 +13,13 @@ class MyHyperModel(kt.HyperModel):
         model.add(keras.layers.Input(shape=(SIZE**2+SIZE **2+1,)))
         # Add hidden layers
         for i in range(hp.Int('num_layers', 1, 3)):  # Search for the number of hidden layers
-            model.add(keras.layers.Dense(units=hp.Choice('hidden_units_' + str(i), [32,64, 128, 256, 512]), activation='relu'))
+            model.add(keras.layers.Dense(units=hp.Choice('hidden_units_' + str(i), [32,64, 128, 256, 512]), activation='relu')) #Search for number of neurons
         model.add(keras.layers.Dense(SIZE**2, activation='softmax'))
         
         # Compile the model
-        model.compile(optimizer=keras.optimizers.Adam(hp.Float('learning_rate',1e-4, 1e-2, sampling='log')),
+        model.compile(optimizer=keras.optimizers.Adam(hp.Float('learning_rate',1e-4, 1e-2, sampling='log')), 
                       loss='categorical_crossentropy',
-                      metrics=['accuracy'])
+                      metrics=['accuracy']) #Search for learning_rate
         return model
 
 # Load your data

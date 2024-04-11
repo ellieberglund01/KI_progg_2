@@ -127,11 +127,12 @@ def train_all_data():
     plt.show()
 
 
-#train_all_data()
-#previous best 300
-#train_all_data()
 
 
+
+
+
+#train_all_data()
 #Lage et supervised set 
 #Kjør 500 simuleringer med MCTS  med random rollout 
 #Lagre til disk og teste med ulike neural net konfigurasjoner 
