@@ -6,6 +6,7 @@ import pickle
 from sklearn.model_selection import train_test_split
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 class NeuralNetwork:
     def __init__(self, activation_function, hidden_layers, learning_rate, optimizer, epochs, board_size): 
@@ -61,17 +62,31 @@ class NeuralNetwork:
         max_index = np.argmax(output)
         return valid_and_invalid_actions[max_index] #returns best move?
     
-    def predict_action_topp(self, valid_and_invalid_actions, board_state):
+
+        #Functions to select action based on some randomness 
+    def select_best_move_random(self, valid_and_invalid_actions, game):
+        if random.random() < 0.2:
+            return self.predict(valid_and_invalid_actions, game)
+        return self.choose_probabilistic(valid_and_invalid_actions, game)
+
+    def choose_probabilistic(self, valid_and_invalid_actions, game):
+        board_state = np.array(game.board).flatten()
+        board_state = np.insert(board_state, 0, game.player_turn) #hvordan vet man at den sjekker PID i tening og predict?
+        board_state = tf.convert_to_tensor([board_state])
+        #print("board_state", board_state)
         output = self.model.predict(board_state).flatten()
-        #print("valid_and_invalid_actions", valid_and_invalid_actions)
         for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
             if valid_and_invalid_actions[i] == 0:
                 output[i] = 0
-        #print(output)
         output = self.custom_soft_max(output)
-        #print("Normalized output", output)
-        max_index = np.argmax(output)
-        return valid_and_invalid_actions[max_index] #returns best move?
+        out = [0]
+        for prob in output:
+            out.append(out[-1] + prob)
+        #print(out)
+        r = random.random()
+        for i in range(1, len(out)):
+            if r < out[i]:
+                return valid_and_invalid_actions[i-1]
 
     #Custom softmax function so 0 values are still 0
     def custom_soft_max(self, arr):

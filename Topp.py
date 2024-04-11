@@ -11,7 +11,7 @@ class TOPP:
         self.n_games = n_games 
         self.points_per_anet = {}
         self.scores_per_series = {}
-        self.policies = ['anet0.weights.h5','anet5.weights.h5']
+        self.policies = ['anet10.weights.h5','anet10.weights.h5']
 
     def load_agents2(self):
         agents = []
@@ -37,29 +37,28 @@ class TOPP:
     def play_game(self, agent1, agent2, player_to_start):
         # Implement the game logic here and return the winner
         hex = HexGame(SIZE)
-        display = DisplayGame(hex)
+        #display = DisplayGame(hex)
         while not hex.is_game_over():
             actions = hex.get_legal_actions_with_0()
             board_state = np.array(hex.board).flatten()
             board_state = np.insert(board_state, 0, hex.player_turn)
-            display.draw_board(None,"player 1", "player 2")
-            hex.display()
+            #display.draw_board(None,"player 1", "player 2")
+            #hex.display()
             if player_to_start == 1:
-                action = agent1.predict(actions,hex)
+                action = agent1.select_best_move_random(actions,hex)
                 hex.move(action)
             else:
-                action = agent2.predict(actions, hex)
+                action = agent2.select_best_move_random(actions, hex)
                 hex.move(action) 
-                
-                   
+        winner = hex.game_result()                
         print('GAME OVER')
-        display.draw_board(hex.player_turn, "Player 1", "Player 2")
-        hex.display()
-        if hex.winner_player == 1:
+        print('Winner:', winner)
+        #display.draw_board(hex.player_turn, "Player 1", "Player 2")
+        #hex.display()
+        if winner == 1:
             self.points_per_anet[agent1] += 1
         else:
             self.points_per_anet[agent2] += 1
-        
         return agent1 if hex.winner_player == 1 else agent2
     
     def run_tournament(self, agents):
@@ -83,7 +82,9 @@ class TOPP:
 
 topp = TOPP(n_games=TOPP_GAMES)
 agents = topp.load_agents2()
+#topp.play_game(agents[0], agents[0], 1)
 topp.run_tournament(agents)
 topp.display_results()
+print(topp.points_per_anet)
 
 
