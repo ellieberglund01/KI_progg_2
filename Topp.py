@@ -12,6 +12,7 @@ class TOPP:
         self.n_games = n_games 
         self.points_per_anet = {}
         self.scores_per_series = {}
+        self.anet_episodes = {}
         #self.policies = ['anet10.weights.h5','anet10.weights.h5']
 
     def load_agents2(self):
@@ -23,6 +24,7 @@ class TOPP:
                 anet.load_weights(filename)
                 agents.append(anet)
                 self.points_per_anet[anet]= 0
+                self.anet_episodes[anet] = ep
         return agents 
     
     def load_agents(self):
@@ -35,10 +37,11 @@ class TOPP:
         return agents 
     
 
-    def play_game(self, agent1, agent2, player_to_start):
+    def play_game(self, agent1, agent2):
         # Implement the game logic here and return the winner
-        hex = HexGame(SIZE)
+        hex = HexGame(SIZE) 
         #display = DisplayGame(hex)
+        hex.player_turn = random.choice([1, 2])
         while not hex.is_game_over():
             actions = hex.get_legal_actions_with_0()
             board_state = np.array(hex.board).flatten()
@@ -109,22 +112,23 @@ class TOPP:
             print("random", game_result_random)
     
     def run_tournament(self, agents): #change to player
-        for i, agent1 in enumerate(agents):
-            for j, agent2 in enumerate(agents):
+        for i, player1 in enumerate(agents):
+            for j, player2 in enumerate(agents):
                 if i < j:
-                    series = [(agent1, agent2) for _ in range(self.n_games)]
-                    agent1_wins, agent2_wins = 0, 0
+                    series = [(player1, player2) for _ in range(self.n_games)]
+                    player1_wins, player2_wins = 0, 0
                     for game in series:
-                        start_player = random.randint(1, 2)
-                        winner = self.play_game(game[0], game[1], start_player)
-                        if winner == agent1:
-                            agent1_wins += 1
-                        elif winner == agent2:
-                            agent2_wins += 1
-                    self.scores_per_series[(i, j)] = (agent1_wins, agent2_wins)
+                        winner = self.play_game(game[0], game[1])
+                        if winner == player1:
+                            player1_wins += 1
+                        elif winner == player2:
+                            player2_wins += 1
+                    self.scores_per_series[(i, j)] = (player1_wins, player2_wins)
 
     #Show which anet is playing which agent
     def display_results(self):
+        for key in self.anet_episodes:
+            print("Anet trained on", self.anet_episodes[key], "episodes")
         for matchup, score in self.scores_per_series.items():
             print(f'Agent {matchup[0]+1} vs Agent {matchup[1]+1}: {score[0]} - {score[1]}')
 
@@ -137,5 +141,5 @@ print(topp.points_per_anet)  #Present this better?
 topp.display_results()
 
 
-#topp.play_game(agents[0], agents[0], 1)
+#topp.play_game(agents[0], agents[0])
 #topp.play_game_MCTS_random()
