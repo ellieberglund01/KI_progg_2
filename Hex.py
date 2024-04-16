@@ -44,7 +44,9 @@ class HexGame():
                 self.player_turn = 3 - self.player_turn
             #self.display() 
         else:
-            print("Not a valid move")
+             #assert action in self.get_legal_actions(), "Not a valid move"
+             print("Not valid move")
+        
         return self
 
     def game_result(self):
@@ -134,6 +136,8 @@ diamond_hex_board.board = [
 
 
 
+#Test 
+#test spillet på en som tar random moves mot MCTS: MCTS skal vinne 9 av 10 ganger 
 
 
 #example player 1 wins 
@@ -161,6 +165,7 @@ game.move((4,3))"""
 
 
 #Another example where player 1 wins 
+
 """game.move((0,0))
 game.move((0,0))
 game.move((1,0))

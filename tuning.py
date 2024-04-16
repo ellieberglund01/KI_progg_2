@@ -6,6 +6,9 @@ import pickle
 import numpy as np
 from Config import *
 
+
+#Do not need this 
+
 # Define your neural network as a HyperModel
 class MyHyperModel(kt.HyperModel):
     def build(self, hp):

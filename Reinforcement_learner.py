@@ -26,6 +26,11 @@ class ReinforcementLearner():
         self.RBUF = []
         #Step 3
         ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE) #initialize ANET. Models gets built
+        
+        #Legge inn utrent ANET (?)
+        #filename = f'anet0.weights.h5'
+        #ANET.save_weights(filename)
+        
         #Step 4
         for ep in range(1,TOTAL_EPISODES+1):
             print(ep)
@@ -34,30 +39,24 @@ class ReinforcementLearner():
             #(a)(b)
             hex = HexGame(SIZE) 
             display = DisplayGame(hex)
-            start_node = Node(1,None,None) #Player 1 starts
+            start_node = Node(1,None,None) #Player 1 always starts: not smart?
             mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET) 
-            #print("Run MCTS to game over")
-            #print("-------------------------")
+
             #(d)          
             while not hex.is_game_over():
                 index += 1
                 D1, D2 = mcts.choose_action(start_node, NUMBER_SEARCH_GAMES) 
-        
-                #Mulig vi trenger random og ikke bare argmax men heller ta et valg basert på distribution 
-                #chosen_child_index = select_from_D1(D1)
-                
-                best_child_index = np.argmax(D1)
+                best_child_index = np.argmax(D1) #Alltid argmax?
                 best_child =  start_node.children[best_child_index]
                 selected_action = best_child.parent_action 
                 print("selected action based on D", selected_action)
-
-
+                
                 board_state = np.array(hex.board).flatten()
                 board_state_inc_player = np.insert(board_state, 0, hex.player_turn) #sets player_turn at index 0
                 game_case = (board_state_inc_player, D2)
                 
                 if len(self.RBUF) < TOTAL_BATCHES:
-                    self.RBUF.append(game_case) #Need to set a limit on 
+                    self.RBUF.append(game_case) #Need to set a limit 
                     
                 else:
                     overwritten_index = index % TOTAL_BATCHES #If we have reaced limit in batches the buffer is overwritten with new data cases 
@@ -71,8 +70,7 @@ class ReinforcementLearner():
 
                 start_node = best_child
                 mcts = MCTS(hex, start_node, EXPLORATION_RATE, ANET)
-                ANET.epsilon = ANET.epsilon * 0.999 
-                """Avoid anet"""
+                ANET.epsilon = ANET.epsilon * 0.999
 
             if VISUALIZATION:
                 display.draw_board(hex.player_turn, "Player 1", "Player 2")
@@ -101,25 +99,6 @@ RL.reinforcement_learner()
 
 
 
-#Functions to select action based on some randomness 
-def select_from_D1(D1):
-    if random.random() < 0.2:
-        print("max choice")
-        return np.argmax(D1)
-    print("porobabilistic choice")   
-    return choose_probabilistic(D1)
-
-def choose_probabilistic(D1):
-    # Create the cumuliative distribution intervals
-    out = [0]
-    for prob in D1:
-        out.append(out[-1] + prob)
-
-    print(out)
-    r = random.random()
-    for i in range(1, len(out)):
-        if r < out[i]:
-            return i - 1
 
 
 

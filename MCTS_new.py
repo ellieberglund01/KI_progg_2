@@ -15,8 +15,6 @@ class MCTS():
 
     def choose_action(self, root_node, n_search_games): 
         for i in range(1,n_search_games+1):
-            #print("Current simulation:", {i})
-            #print("-----------------")
             node = root_node
             game_copy = copy.deepcopy(self.game)
             leaf1, game_copy = self.tree_policy(node, game_copy) #explore best existing paths in the tree
@@ -29,11 +27,11 @@ class MCTS():
         normalized_distribution2 = self.get_distribution2(root_node)
         return normalized_distribution1,normalized_distribution2
     
-    def get_distribution(self, root_node): #Include the fact that we have negative values
+    def get_distribution(self, root_node): 
         distribution = []
         for child in root_node.children:
             distribution.append(child.visits)
-        normalized_distribution = [float(i)/sum(distribution) for i in distribution] #Kan hende dette blir feil mtp neg verdier
+        normalized_distribution = [float(i)/sum(distribution) for i in distribution] 
         return normalized_distribution
     
     #Distribution including all moves, ensures list length of board_size**2
@@ -63,15 +61,11 @@ class MCTS():
     def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
-        #print("rollout policy run")
         if self.anet.get_epsilon() > np.random.rand():
-            #print("random choice")
             return random.choice(possible_actions)
         else:
-            #print("anet choice")
             return self.anet.predict(valid_and_invalid_actions, current_rollout_state) #returns best move based on distribution from Anet
             
-    
     def update_visit_count(self, node):
         while node != None:
             node.visits += 1
@@ -105,6 +99,7 @@ class MCTS():
                 raise Exception("No node found")
             actions.append(current_node.parent_action)
         
+        #Not valid moves so this does nothing; current_node is updated, game-copy is the same before and after tree policy 
         for action in actions:
             game.move(action)
         return current_node, game
@@ -123,7 +118,6 @@ class MCTS():
             if child not in initial_node.children: 
                 initial_node.children.append(child)
     
-
 class Node():
     def __init__(self, player, parent=None, parent_action=None):
         self.player = player
