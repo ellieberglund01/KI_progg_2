@@ -5,6 +5,7 @@ import numpy as np
 from Display import DisplayGame
 import random
 from MCTS_new import MCTS, Node
+import matplotlib.pyplot as plt
 
 
 class TOPP:
@@ -123,14 +124,25 @@ class TOPP:
                             player1_wins += 1
                         elif winner == player2:
                             player2_wins += 1
-                    self.scores_per_series[(i, j)] = (player1_wins, player2_wins)
-
+                    self.scores_per_series[(player1, player2)] = (player1_wins, player2_wins)
+            
     #Show which anet is playing which agent
     def display_results(self):
-        for key in self.anet_episodes:
-            print("Anet trained on", self.anet_episodes[key], "episodes")
         for matchup, score in self.scores_per_series.items():
-            print(f'Agent {matchup[0]+1} vs Agent {matchup[1]+1}: {score[0]} - {score[1]}')
+            print(f'Anet{self.anet_episodes[matchup[0]]} vs Anet{self.anet_episodes[matchup[1]]}: {score[0]} - {score[1]}')
+        for anet, points in self.points_per_anet.items():
+            print(f'Anet{self.anet_episodes[anet]}: {points} points')
+        # Extracting data from dictionaries
+        anet_episodes = [self.anet_episodes[anet] for anet in self.points_per_anet.keys()]
+        points = list(self.points_per_anet.values())
+
+        # Plotting
+        plt.bar(anet_episodes, points, color='blue')
+        plt.xlabel('Anet')
+        plt.ylabel('Points')
+        plt.title('Points per Anet')
+        plt.xticks(anet_episodes)
+        plt.show()      
 
 topp = TOPP(n_games=TOPP_GAMES)
 agents = topp.load_agents2()
