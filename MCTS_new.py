@@ -61,7 +61,7 @@ class MCTS():
     def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
-        if self.anet.get_epsilon() > np.random.rand():
+        if self.anet.get_epsilon() > random.random():
             return random.choice(possible_actions)
         else:
             return self.anet.predict(valid_and_invalid_actions, current_rollout_state) #returns best move based on distribution from Anet
@@ -99,7 +99,9 @@ class MCTS():
                 raise Exception("No node found")
             actions.append(current_node.parent_action)
         
-        #Not valid moves so this does nothing; current_node is updated, game-copy is the same before and after tree policy 
+        #FIXED:Not valid moves so this does nothing;
+        #current_node is updated, game-copy is the same before and after tree policy
+        #Create new tree for each move in Topp, bug is not a problem in RL 
         for action in actions:
             game.move(action)
         return current_node, game

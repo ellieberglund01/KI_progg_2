@@ -1,11 +1,11 @@
-
+import random
 
 
 class HexGame():
-    def __init__(self,board_size):
+    def __init__(self,board_size, player_turn=None):
         self.board_size = board_size #Number of rows (or column) of the square array 
         self.board = [[(0, 0) for _ in range(board_size)] for _ in range(board_size)] #empty cells
-        self.player_turn = 1  # Player 1 starts the game
+        self.player_turn = random.choice([1,2]) if player_turn is None else player_turn  # Player 1 starts the game
         self.winner_player = None
 
     def get_flat_representation(self):
@@ -44,7 +44,7 @@ class HexGame():
                 self.player_turn = 3 - self.player_turn
             #self.display() 
         else:
-             #assert action in self.get_legal_actions(), "Not a valid move"
+             assert action in self.get_legal_actions(), "Not a valid move"
              print("Not valid move")
         
         return self

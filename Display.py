@@ -57,6 +57,7 @@ class DisplayGame():
         empty_nodes = self.get_empty_nodes()
         legal_positions = self.get_legal_positions()
         positions = {}
+        winning_nodes = []
 
         # Position nodes to shape a Diamond
         for node in legal_positions:
@@ -86,27 +87,14 @@ class DisplayGame():
             winning_nodes = []
             edge_color = 'black'
 
-        # Coloring edges connecting winning nodes
+        #Coloring edges connecting winning nodes
         #Error: Alle edges mellom alle noder til winner player blir farget, ikke bare winning path 
         for edge in self.graph.edges():
             if edge[0] in winning_nodes and edge[1] in winning_nodes:
                 nx.draw_networkx_edges(self.graph, pos=positions, edgelist=[edge], edge_color=edge_color)
         
-
         plt.legend(prop={'size': 12})
         plt.draw()
         plt.pause(self.frame_delay)
         plt.show()
 
-
-board_size = 4
-diamond_hex_board = HexGame(board_size)
-diamond_hex_board.board = [
-    [(0, 1), (0,0), (0,1), (0,0)],
-    [(1, 0), (1,0), (0,1), (1,0)],
-    [(1, 0), (0,0), (0,1), (0,0)],
-    [(0, 0), (0,0), (0,1), (0,0)]
-]
-
-#display = DisplayGame(diamond_hex_board)
-#display.draw_board( -1,"player 1", "player 2")

@@ -54,11 +54,10 @@ class NeuralNetwork:
         board_state = tf.convert_to_tensor([board_state])
 
         output = self.model.predict(board_state).flatten()
-
         for i in range(len(valid_and_invalid_actions)): 
             if valid_and_invalid_actions[i] == 0:
                 output[i] = 0
-        output = self.custom_soft_max(output)
+        output = output/tf.reduce_sum(output)
         max_index = np.argmax(output)
         return valid_and_invalid_actions[max_index] 
     
@@ -68,7 +67,6 @@ class NeuralNetwork:
             return self.predict(valid_and_invalid_actions, game)
         return self.choose_probabilistic(valid_and_invalid_actions, game)
 
-    #Bruker denne helt i starten av spillet (3 første move) i TOPP for å så argmax
     def choose_probabilistic(self, valid_and_invalid_actions, game):
         board_state = np.array(game.board).flatten()
         board_state = np.insert(board_state, 0, game.player_turn) 
@@ -78,25 +76,20 @@ class NeuralNetwork:
         for i in range(len(valid_and_invalid_actions)): #if action is invalid, set output to 0
             if valid_and_invalid_actions[i] == 0:
                 output[i] = 0
-        output = self.custom_soft_max(output)
-        out = [0]
-        for prob in output:
-            out.append(out[-1] + prob)
-        r = random.random()
-        for i in range(1, len(out)):
-            if r < out[i]:
-                return valid_and_invalid_actions[i-1]
+        output = output/tf.reduce_sum(output)
+        prob_index = np.random.choice(len(output),p=output.numpy())
+        return valid_and_invalid_actions[prob_index] 
 
 
     #Custom softmax function so 0 values are still 0
-    def custom_soft_max(self, arr):
+    """def custom_soft_max(self, arr):
         non_zero_indices = np.where(arr != 0)[0]
         non_zero_values = arr[non_zero_indices]
         exp_values = np.exp(non_zero_values - np.max(non_zero_values))
         softmax_values = exp_values / np.sum(exp_values)
         result = np.zeros_like(arr)
         result[non_zero_indices] = softmax_values
-        return result
+        return result"""
 
     def save_weights(self, filename):
         self.model.save_weights(filename)
@@ -113,8 +106,6 @@ class NeuralNetwork:
     
     def shrink_epsilon(self):
         self.epsilon = self.epsilon * 0.99
-
-
 
 def train_all_data():
     RBUF = pickle.load(open('RBUF_game_cases3.pkl', "rb"))
