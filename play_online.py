@@ -51,5 +51,7 @@ if __name__ == '__main__':
 
  #ANNET:
  #state_manager. Ikke definert som egen fil i oppgave, men blir nevnt. Er det viktig?
- #Anet performer ikke sånn superbra :))
- #Display av board + winning path
+ #Anet performer ikke sånn superbra :)) Hvordan kan vi validere dette? 
+ #I topp, skal vi kjøre predict eller random? Hvilken balanse mellom predict/random er lurt? Nå har vi 0.2
+ #Få de til å sjekke display av board + winning path 
+ #

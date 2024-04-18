@@ -15,12 +15,28 @@ class TOPP:
         self.scores_per_series = {}
         self.anet_episodes = {}
 
-    def load_agents(self):
+    def load_agents_5(self):
         agents = []
-        for ep in range(TOTAL_EPISODES+1):
-            if ep % INTERVAL == 0:
-                anet = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE)
+        EP = 240
+        I = 40
+        for ep in range(EP+1):
+            if ep % I == 0:
+                anet = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, 5)
                 filename = f'anet{ep}.weights.h5'
+                anet.load_weights(filename)
+                agents.append(anet)
+                self.points_per_anet[anet]= 0
+                self.anet_episodes[anet] = ep
+        return agents 
+    
+    def load_agents_7(self):
+        agents = []
+        EP = 100
+        I = 20
+        for ep in range(EP+1):
+            if ep % I == 0:
+                anet = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, 7)
+                filename = f'anet7_{ep}.weights.h5'
                 anet.load_weights(filename)
                 agents.append(anet)
                 self.points_per_anet[anet]= 0
@@ -37,10 +53,10 @@ class TOPP:
             #display.draw_board(None,"player 1", "player 2")
             #hex.display()
             if hex.player_turn == 1:
-                action = agent1.predict(actions,hex) #argmax eller select best move random?
+                action = agent1.select_best_move_random(actions,hex) #argmax eller select best move random?
                 hex.move(action)
             else:
-                action = agent2.predict(actions, hex)
+                action = agent2.select_best_move_random(actions, hex)
                 hex.move(action) 
         winner = hex.game_result()                
         print('GAME OVER')
