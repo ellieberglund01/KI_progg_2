@@ -27,7 +27,7 @@ class ReinforcementLearner():
         #Step 3
         ANET = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE) #initialize ANET. Models gets built
 
-        filename = f'anet0.weights.h5'
+        filename = f'anet7_0.weights.h5'
         ANET.save_weights(filename)
         
         #Step 4
@@ -89,7 +89,7 @@ class ReinforcementLearner():
             #(f)
             if ep % interval == 0: #if interval= 10 this will be true for ep = 10,20, 30, 40 ....
                 print("Saving anet's parameters for later use in tournament")
-                filename = f'anet{ep}.weights.h5'
+                filename = f'anet7_{ep}.weights.h5'
                 ANET.save_weights(filename)
             
         # Save RBUF using pickle
