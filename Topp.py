@@ -31,8 +31,8 @@ class TOPP:
     
     def load_agents_7(self):
         agents = []
-        EP = 100
-        I = 20
+        EP = 40
+        I = 40
         for ep in range(EP+1):
             if ep % I == 0:
                 anet = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, 7)
@@ -144,7 +144,7 @@ class TOPP:
               
 
 topp = TOPP(n_games=TOPP_GAMES)
-agents = topp.load_agents()
+agents = topp.load_agents_7()
 topp.run_tournament(agents)
 topp.display_results()
 

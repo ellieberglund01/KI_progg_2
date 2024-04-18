@@ -12,7 +12,7 @@ class MyClient(ActorClient):
     def __init__(self):
         self.hex = HexGame(SIZE)
         actor = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE)
-        filename = f'anet7_0.weights.h5'
+        filename = f'anet7_40.weights.h5'
         actor.load_weights(filename)
         self.actor = actor
         super().__init__()
