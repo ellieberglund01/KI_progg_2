@@ -11,8 +11,9 @@ from Hex import HexGame
 class MyClient(ActorClient):
     def __init__(self):
         self.hex = HexGame(SIZE)
-        actor = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, SIZE)
-        filename = f'anet7_40.weights.h5'
+        actor = NeuralNetwork(ACTIVATION_FUNCTION, HIDDEN_LAYERS, LEARNING_RATE, OPTIMIZER, EPOCHS, 7)
+        #actor = NeuralNetwork(activation_function='relu', hidden_layers=[128,128,128], learning_rate=0.001, optimizer='adam', epochs=180, board_size=7)
+        filename = f'anets/anet7_3_200.weights.h5'
         actor.load_weights(filename)
         self.actor = actor
         super().__init__()
@@ -39,7 +40,7 @@ class MyClient(ActorClient):
     def handle_get_action(self, state): #change state to tuple. Er state et hex object? Endre egen board state eller state
         self.transform_board(state)
         valid_and_invalid_actions = self.hex.get_legal_actions_with_0() #er state et hex object?
-        action = self.actor.predict(valid_and_invalid_actions, self.hex) # Your logic
+        action = self.actor.select_best_move_random(valid_and_invalid_actions, self.hex) # Your logic
         row = action[0]
         col = action[1]
         return int(row), int(col)

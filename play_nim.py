@@ -1,6 +1,6 @@
 from Nim import NimGame
-from MCTS_new import Node
-from MCTS_new import MCTS
+from MCTS import Node
+from MCTS import MCTS
 from Hex import HexGame
 from Display import DisplayGame
 

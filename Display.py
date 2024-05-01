@@ -1,8 +1,5 @@
 import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
-from Hex import HexGame
-
 
 class DisplayGame():
     def __init__(self, hexGame):
@@ -17,7 +14,6 @@ class DisplayGame():
             for j in range(self.size):
               self.graph.add_node((i, j))
         
-        #Bedre måte å sette naboer på 
         for x, y in self.legal_positions:
             for row_off, col_off in self.edges:
                 neighbor_node = (x + row_off, y + col_off)

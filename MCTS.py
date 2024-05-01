@@ -1,41 +1,39 @@
 import numpy as np
 import copy 
-from math import sqrt, log,inf
+from math import sqrt
 import numpy as np
 import random
-from Anet import NeuralNetwork
 
 class MCTS():
     def __init__(self, game_state, root_node, exploration_rate, anet): 
         self.game = game_state
         self.root_node = root_node
         self.exploration_rate = exploration_rate 
-        self.root_node.parent = None #pruner treet når en action blit tatt 
         self.anet = anet
 
-    def choose_action(self, root_node, n_search_games): 
-        for i in range(1,n_search_games+1):
+    def choose_action(self, root_node, n_search_games): #Simulations + actual action is taken
+        for i in range(1,n_search_games+1): #Simulations
             node = root_node
-            game_copy = copy.deepcopy(self.game)
+            game_copy = copy.deepcopy(self.game) #Copy for simulation
             leaf1, game_copy = self.tree_policy(node, game_copy) #explore best existing paths in the tree
             self.expand(leaf1, game_copy) #Adds children to leaf node
             expanded_leaf, game_copy = self.tree_policy(leaf1, game_copy) #Chooses beste action/leaf node from leaf1
             game_result = self.rollout(game_copy)  #Simulates game from expanded leaf
-            self.backpropagate(expanded_leaf, game_result) #Backpropagates and returns the path from leaf to root
+            self.backpropagate(expanded_leaf, game_result) #Backpropagates and update visit and score count
        
-        normalized_distribution1 = self.get_distribution(root_node)
-        normalized_distribution2 = self.get_distribution2(root_node)
-        return normalized_distribution1,normalized_distribution2
+        normalized_distribution_ex = self.get_distribution_ex(root_node) #Normalized visitcounts excluded illegal actions
+        normalized_distribution_in = self.get_distribution_in(root_node) #Normalized cisitcounts included illegal action
+        return normalized_distribution_ex,normalized_distribution_in
     
-    def get_distribution(self, root_node): 
+    def get_distribution_ex(self, root_node): #Used to choose best child index
         distribution = []
         for child in root_node.children:
             distribution.append(child.visits)
         normalized_distribution = [float(i)/sum(distribution) for i in distribution] 
         return normalized_distribution
     
-    #Distribution including all moves, ensures list length of board_size**2
-    def get_distribution2(self, root_node):
+  
+    def get_distribution_in(self, root_node): #Used as input in anet -> ensures input of board_size**2
         distribution = []
         all_actions = self.game.get_legal_actions_with_0()
         for action in all_actions:
@@ -61,15 +59,10 @@ class MCTS():
     def rollout_policy(self, current_rollout_state):
         possible_actions = current_rollout_state.get_legal_actions()
         valid_and_invalid_actions = current_rollout_state.get_legal_actions_with_0()
-        if self.anet.get_epsilon() > random.random():
+        if self.anet.get_epsilon() > np.random.rand(): #randomness added
             return random.choice(possible_actions)
         else:
-            return self.anet.predict(valid_and_invalid_actions, current_rollout_state) #returns best move based on distribution from Anet
-            
-    def update_visit_count(self, node):
-        while node != None:
-            node.visits += 1
-            node = node.parent
+            return self.anet.predict(valid_and_invalid_actions, current_rollout_state) #returns argmax based on distribution from Anet    
 
     def backpropagate(self, node, result):
         path = []
@@ -83,7 +76,12 @@ class MCTS():
             node = node.parent
         return path
     
-    def tree_policy(self, node, game):
+    def update_visit_count(self, node):
+        while node != None:
+            node.visits += 1
+            node = node.parent
+    
+    def tree_policy(self, node, game): #traverse through best path using value + ucb
         current_node = node
         actions = []
         while len(current_node.children) != 0:
@@ -99,9 +97,6 @@ class MCTS():
                 raise Exception("No node found")
             actions.append(current_node.parent_action)
         
-        #FIXED:Not valid moves so this does nothing;
-        #current_node is updated, game-copy is the same before and after tree policy
-        #Create new tree for each move in Topp, bug is not a problem in RL 
         for action in actions:
             game.move(action)
         return current_node, game
@@ -120,6 +115,7 @@ class MCTS():
             if child not in initial_node.children: 
                 initial_node.children.append(child)
     
+
 class Node():
     def __init__(self, player, parent=None, parent_action=None):
         self.player = player
